@@ -32,5 +32,6 @@ int nproc(void){
   ssize_t read;
   FILE *f=popen(NPROC_COMMAND,"r");
   read=getline(&line,&len,f);
+  pclose(f);
   return read>0?atoi(line):1;
 }
