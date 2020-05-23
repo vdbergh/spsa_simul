@@ -29,6 +29,7 @@ void jump(uint64_t *prng);
 double L(double x);
 int pick(uint64_t *prng, double w,double d,double l);
 void wdl(double draw_ratio,double elo,double *wdl_out);
+int match(uint64_t *prng,double draw_ratio,double elo0,double elo1);
 
 #define MAX_PARAMS 20
 typedef double params_t[MAX_PARAMS];

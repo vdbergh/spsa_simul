@@ -3,13 +3,6 @@
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_t threads[MAX_THREADS];
 
-int sim_match(uint64_t *prng,spsa_t *s,double elo0,double elo1){
-  double wdl_[3];
-  double elo=elo1-elo0;
-  wdl(s->draw_ratio,elo,wdl_);
-  return pick(prng,wdl_[WIN],wdl_[DRAW],wdl_[LOSS]);
-}
-
 void spsa_sim_step(uint64_t *prng, spsa_t *s,lfd_t *lfd,params_t *p){
   params_t flips,p_minus,p_plus;
   double elo0,elo1;
@@ -26,7 +19,7 @@ void spsa_sim_step(uint64_t *prng, spsa_t *s,lfd_t *lfd,params_t *p){
   }
   elo0=loss_function(lfd,&p_minus);
   elo1=loss_function(lfd,&p_plus);
-  r=sim_match(prng,s,elo0,elo1);
+  r=match(prng,s->draw_ratio,elo0,elo1);
   for(int j=0;j<s->num_params;j++){
     if(r==WIN){
       (*p)[j]+=s->r*s->c[j]*flips[j];
@@ -87,9 +80,6 @@ void mainloop(sim_t *sim){
     fflush(stdout);
   }
 }
-
-
-
 
 int main(int argc, char **argv){
   sim_t sim;
