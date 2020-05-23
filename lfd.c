@@ -57,7 +57,7 @@ int lfd_init(lfd_t *lfd, int num_params, params_t *elos, params_t *optima, param
     }
   }
   for(int i=0;i<num_params;i++){
-    if(lfd->elos[i]<0){
+    if(lfd->elos[i]<=0){
       return LFD_INIT_ELOS;
     }else if(lfd->minima[i]>=lfd->maxima[i]){
       return LFD_INIT_BOUNDS;
