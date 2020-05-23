@@ -169,7 +169,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lfd_t *lfd, options_t *o){
     }else if(strcmp(argv[i],"--threads")==0){
       if(i<argc-1){
 	o->num_threads=atoi(argv[i+1]);
-	if(o->num_threads<=1 || o->num_threads>MAX_THREADS){
+	if(o->num_threads<1 || o->num_threads>MAX_THREADS){
 	  return OPTIONS_PARSE_THREADS;
 	}
 	i++;
