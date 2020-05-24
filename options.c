@@ -183,11 +183,11 @@ int options_parse(int argc, char **argv, spsa_t *s, lfd_t *est_lfd, lfd_t *true_
       return OPTIONS_PARSE_UNKNOWN;
     }
   }
-  ret=lfd_init(est_lfd,num_params,true_elos_,optima_,minima_,maxima_);
+  ret=lfd_init(true_lfd,num_params,true_elos_,optima_,minima_,maxima_);
   if(ret!=0){
     return ret;
   }
-  ret=lfd_init(true_lfd,num_params,est_elos_,optima_,minima_,maxima_);
+  ret=lfd_init(est_lfd,num_params,est_elos_,optima_,minima_,maxima_);
   if(ret!=0){
     return ret;
   }
