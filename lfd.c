@@ -30,9 +30,11 @@ int lfd_init(lfd_t *lfd, int num_params, params_t *elos, params_t *optima, param
       lfd->elos[i]=(*elos)[i];
     }
   }
-  if(minima==NULL){
-    for(int i=0;i<num_params;i++){
+  for(int i=0;i<num_params;i++){
+    if(minima==NULL){
       lfd->minima[i]=0;
+    }else{
+      lfd->minima[i]=(*minima)[i];
     }
   }
   if(optima==NULL && maxima==NULL){
