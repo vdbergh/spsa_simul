@@ -124,17 +124,17 @@ int main(int argc, char **argv){
   }
   lfd_start(&est_lfd,o.start_elo,&(sim.p));
   if(!o.quiet){
-    printf("starting point\n");
-    printf("==============\n");
-    params_disp("starting point =",sim.s.num_params,&(sim.p));
+    printf("starting point sims\n");
+    printf("===================\n");
+    params_disp("starting point      =",sim.s.num_params,&(sim.p));
     v=loss_function(&(sim.true_lfd),&(sim.p));
-    printf("loss_function  =%f\n\n",v);
+    printf("true loss function  =%f\n\n",v);
   }
   if(!o.quiet){
     double elo_est=spsa_elo_estimate(&(sim.s), &(sim.true_lfd), &(sim.p), sim.s.num_games);
     double noise_est=spsa_noise_estimate(&(sim.s), &(sim.true_lfd), &(sim.p), sim.s.num_games);
-    printf("theoretical final estimates (using the actual loss function)\n");
-    printf("============================================================\n");
+    printf("theoretical expected final Elo values (using the true loss function)\n");
+    printf("====================================================================\n");
     printf("fixed part   =%f\n",elo_est);
     printf("noise part   =%f\n",noise_est);
     printf("total        =%f\n",elo_est+noise_est);
