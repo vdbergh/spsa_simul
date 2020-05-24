@@ -31,16 +31,16 @@ void spsa_init(spsa_t *s){
   }
 }
 
-void spsa_compute(spsa_t *s, lfd_t *est_lfd){
-  double chi2=gsl_cdf_chisq_Pinv(s->confidence, est_lfd->num_params);
+void spsa_compute(spsa_t *s, lf_t *est_lf){
+  double chi2=gsl_cdf_chisq_Pinv(s->confidence, est_lf->num_params);
   double H_diag,lambda;
   int ng;
   s->r=s->precision/(C*chi2*(1-s->draw_ratio)/8);
-  s->num_params=est_lfd->num_params;
+  s->num_params=est_lf->num_params;
   s->num_games=0;
   for(int j=0;j<s->num_params;j++){
-    s->c[j]=s->c_ratio*(est_lfd->maxima[j]-est_lfd->minima[j]);
-    H_diag=-2*est_lfd->elos[j]/pow((est_lfd->maxima[j]-est_lfd->minima[j])/2,2);
+    s->c[j]=s->c_ratio*(est_lf->maxima[j]-est_lf->minima[j]);
+    H_diag=-2*est_lf->elos[j]/pow((est_lf->maxima[j]-est_lf->minima[j])/2,2);
     lambda=-C/(2*s->r*pow(s->c[j],2)*H_diag);
     ng=(int)(s->lambda_ratio*lambda+0.5);
     if(ng>s->num_games){
@@ -49,23 +49,23 @@ void spsa_compute(spsa_t *s, lfd_t *est_lfd){
   }
 }
 
-double spsa_elo_estimate(spsa_t *s, lfd_t *lfd, params_t *p0, double t){
+double spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t){
   double ss=0;
   for(int j=0;j<s->num_params;j++){
     double ej,oj;
-    ej=lfd->elos[j]/pow((lfd->maxima[j]-lfd->minima[j])/2,2);
-    oj=lfd->optima[j];
+    ej=lf->elos[j]/pow((lf->maxima[j]-lf->minima[j])/2,2);
+    oj=lf->optima[j];
     ss+=-ej*exp(-8*s->r*(pow(s->c[j],2))*ej*t/C)*pow(((*p0)[j]-oj),2);
   }
   return ss;
 }
 
-double spsa_noise_estimate(spsa_t *s, lfd_t *lfd, params_t *p0, double t){
+double spsa_noise_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t){
   double ss=0;
   double front=(s->r)*(1-s->draw_ratio)*C/8;
   for(int j=0;j<s->num_params;j++){
     double ej,decay;
-    ej=lfd->elos[j]/pow((lfd->maxima[j]-lfd->minima[j])/2,2);
+    ej=lf->elos[j]/pow((lf->maxima[j]-lf->minima[j])/2,2);
     decay=8*s->r*(pow(s->c[j],2))*ej/C;
     ss-=front*(1-exp(-decay*t));
   }

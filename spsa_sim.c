@@ -3,7 +3,7 @@
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_t threads[MAX_THREADS];
 
-void spsa_sim_step(uint64_t *prng, spsa_t *s,lfd_t *lfd,params_t *p){
+void spsa_sim_step(uint64_t *prng, spsa_t *s,lf_t *lf,params_t *p){
   params_t flips,p_minus,p_plus;
   double elo0,elo1;
   double r;
@@ -17,8 +17,8 @@ void spsa_sim_step(uint64_t *prng, spsa_t *s,lfd_t *lfd,params_t *p){
     p_minus[j]=(*p)[j]-flips[j]*s->c[j];
     p_plus[j]=(*p)[j]+flips[j]*s->c[j];
   }
-  elo0=loss_function(lfd,&p_minus);
-  elo1=loss_function(lfd,&p_plus);
+  elo0=lf_eval(lf,&p_minus);
+  elo1=lf_eval(lf,&p_plus);
   r=match(prng,s->draw_ratio,elo0,elo1);
   for(int j=0;j<s->num_params;j++){
     if(r==WIN){
@@ -29,15 +29,15 @@ void spsa_sim_step(uint64_t *prng, spsa_t *s,lfd_t *lfd,params_t *p){
   }
 }
 
-void spsa_sim(uint64_t *prng, spsa_t *s,lfd_t *lfd,params_t *p,int quiet){
+void spsa_sim(uint64_t *prng, spsa_t *s,lf_t *lf,params_t *p,int quiet){
   for(int i=0;i<s->num_games;i++){
-    spsa_sim_step(prng,s,lfd,p);
+    spsa_sim_step(prng,s,lf,p);
     if(i%100==0 && !quiet){
       printf("%d",i);
       for(int j=0; j<s->num_params;j++){
 	printf("  %f",(*p)[j]);
       }
-      printf("  %f\n",loss_function(lfd,p));
+      printf("  %f\n",lf_eval(lf,p));
     }
   }
 }
@@ -56,8 +56,8 @@ void* spsa_sims(void *args){
     for(int j=0;j<(sim->s).num_params;j++){
       pp[j]=(sim->p)[j];
     }
-    spsa_sim(&prng,&(sim->s),&(sim->true_lfd),&pp,1);
-    elo=loss_function(&(sim->true_lfd),&pp);
+    spsa_sim(&prng,&(sim->s),&(sim->true_lf),&pp,1);
+    elo=lf_eval(&(sim->true_lf),&pp);
     pthread_mutex_lock(&mutex);
     sim->count++;
     sim->elo_total+=elo;
@@ -90,8 +90,8 @@ int main(int argc, char **argv){
   double v;
   options_t o;
   int ret;
-  lfd_t est_lfd;
-  ret=options_parse(argc,argv,&(sim.s),&est_lfd,&(sim.true_lfd),&o);
+  lf_t est_lf;
+  ret=options_parse(argc,argv,&(sim.s),&est_lf,&(sim.true_lf),&o);
   if(ret!=0){
     options_usage();
     return 0;
@@ -103,11 +103,11 @@ int main(int argc, char **argv){
     printf("\n");
     printf("guessed loss function\n");
     printf("=====================\n");
-    lfd_disp(&est_lfd);
+    lf_disp(&est_lf);
     printf("\n");
     printf("true loss function\n");
     printf("==================\n");
-    lfd_disp(&sim.true_lfd);
+    lf_disp(&sim.true_lf);
     printf("\n");
   }
   sim.prng=o.seed;
@@ -115,24 +115,24 @@ int main(int argc, char **argv){
   sim.pass=0;
   sim.elo_total=0;
   sim.stop=0;
-  spsa_compute(&(sim.s),&est_lfd);
+  spsa_compute(&(sim.s),&est_lf);
   if(!o.quiet){
     printf("spsa data\n");
     printf("=========\n");
     spsa_disp(&(sim.s));
     printf("\n");
   }
-  lfd_start(&est_lfd,o.start_elo,&(sim.p));
+  lf_start(&est_lf,o.start_elo,&(sim.p));
   if(!o.quiet){
     printf("starting point sims\n");
     printf("===================\n");
     params_disp("starting point      =",sim.s.num_params,&(sim.p));
-    v=loss_function(&(sim.true_lfd),&(sim.p));
+    v=lf_eval(&(sim.true_lf),&(sim.p));
     printf("true loss function  =%f\n\n",v);
   }
   if(!o.quiet){
-    double elo_est=spsa_elo_estimate(&(sim.s), &(sim.true_lfd), &(sim.p), sim.s.num_games);
-    double noise_est=spsa_noise_estimate(&(sim.s), &(sim.true_lfd), &(sim.p), sim.s.num_games);
+    double elo_est=spsa_elo_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
+    double noise_est=spsa_noise_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
     printf("theoretical expected final Elo values (using the true loss function)\n");
     printf("====================================================================\n");
     printf("fixed part   =%f\n",elo_est);

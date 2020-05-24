@@ -19,7 +19,7 @@ void options_disp(options_t *o){
   printf("quiet             =%d\n",o->quiet);
 }
 
-int options_parse(int argc, char **argv, spsa_t *s, lfd_t *est_lfd, lfd_t *true_lfd, options_t *o){
+int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf, options_t *o){
   int ret=0;
   int num_params=1;
   params_t *true_elos_=NULL;
@@ -183,11 +183,11 @@ int options_parse(int argc, char **argv, spsa_t *s, lfd_t *est_lfd, lfd_t *true_
       return OPTIONS_PARSE_UNKNOWN;
     }
   }
-  ret=lfd_init(true_lfd,num_params,true_elos_,optima_,minima_,maxima_);
+  ret=lf_init(true_lf,num_params,true_elos_,optima_,minima_,maxima_);
   if(ret!=0){
     return ret;
   }
-  ret=lfd_init(est_lfd,num_params,est_elos_,optima_,minima_,maxima_);
+  ret=lf_init(est_lf,num_params,est_elos_,optima_,minima_,maxima_);
   if(ret!=0){
     return ret;
   }

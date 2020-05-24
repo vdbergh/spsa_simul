@@ -41,15 +41,15 @@ typedef struct {
   params_t optima;
   params_t minima;
   params_t maxima;
-} lfd_t;
+} lf_t;
 
-double loss_function(lfd_t *lfd, params_t *p);
+double lf_eval(lf_t *lf, params_t *p);
 
 
 /* TODO: make this enum */
-#define LFD_INIT_NUM_PARAMS              1
-#define LFD_INIT_ELOS                    2
-#define LFD_INIT_BOUNDS                  3
+#define LF_INIT_NUM_PARAMS              1
+#define LF_INIT_ELOS                    2
+#define LF_INIT_BOUNDS                  3
 #define OPTIONS_PARSE_HELP               4
 #define OPTIONS_PARSE_CONFIDENCE         5
 #define OPTIONS_PARSE_DRAW_RATIO         6
@@ -68,9 +68,9 @@ double loss_function(lfd_t *lfd, params_t *p);
 #define OPTIONS_PARSE_UNKNOWN           19
 
 
-int lfd_init(lfd_t *lfd, int num_params, params_t *elos, params_t *optima, params_t *minima, params_t *maxima);
-void lfd_disp(lfd_t *lfd);
-void lfd_start(lfd_t *lfd, double elo, params_t *p);
+int lf_init(lf_t *lf, int num_params, params_t *elos, params_t *optima, params_t *minima, params_t *maxima);
+void lf_disp(lf_t *lf);
+void lf_start(lf_t *lf, double elo, params_t *p);
 
 typedef struct {
   int num_params;
@@ -88,9 +88,9 @@ typedef struct {
 
 void spsa_init(spsa_t *s);
 void spsa_disp(spsa_t *s);
-void spsa_compute(spsa_t *s, lfd_t *est_lfd);
-double spsa_elo_estimate(spsa_t *s, lfd_t *lfd, params_t *p0, double t);
-double spsa_noise_estimate(spsa_t *s, lfd_t *lfd, params_t *p0, double t);
+void spsa_compute(spsa_t *s, lf_t *est_lf);
+double spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
+double spsa_noise_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
 
 void params_disp(const char *prompt, int num_params, params_t *p);
 void params_from_string(const char* str_in, params_t *p);
@@ -98,7 +98,7 @@ void params_from_string(const char* str_in, params_t *p);
 typedef struct {
   /* identical for every thread */
   spsa_t s;
-  lfd_t  true_lfd;
+  lf_t  true_lf;
   params_t p;
   /* in/out data */
   /* read and written with mutex */
@@ -121,6 +121,6 @@ typedef struct {
   int quiet;
 } options_t;
 
-int options_parse(int argc, char **argv, spsa_t *s, lfd_t *est_lfd, lfd_t *true_lfd, options_t *o);
+int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf, options_t *o);
 void options_usage();
 void options_disp(options_t *o);
