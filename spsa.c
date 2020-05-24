@@ -48,3 +48,29 @@ void spsa_compute(spsa_t *s, lfd_t *lfd){
     }
   }
 }
+
+double spsa_elo_estimate(spsa_t *s, lfd_t *lfd, params_t *p0, double t){
+  double ss=0;
+  for(int j=0;j<s->num_params;j++){
+    double ej,oj;
+    ej=lfd->elos[j]/pow((lfd->maxima[j]-lfd->minima[j])/2,2);
+    oj=lfd->optima[j];
+    ss+=-ej*exp(-8*s->r*(pow(s->c[j],2))*ej*t/C)*pow(((*p0)[j]-oj),2);
+  }
+  return ss;
+}
+
+double spsa_noise_estimate(spsa_t *s, lfd_t *lfd, params_t *p0, double t){
+  double ss=0;
+  double front=(s->r)*(1-s->draw_ratio)*C/8;
+  for(int j=0;j<s->num_params;j++){
+    double ej,decay;
+    ej=lfd->elos[j]/pow((lfd->maxima[j]-lfd->minima[j])/2,2);
+    decay=8*s->r*(pow(s->c[j],2))*ej/C;
+    ss-=front*(1-exp(-decay*t));
+  }
+  return ss;
+}
+
+
+
