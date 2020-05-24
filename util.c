@@ -30,8 +30,11 @@ int nproc(void){
   char *line=NULL;
   size_t len=0;
   ssize_t read;
+  int nproc_;
   FILE *f=popen(NPROC_COMMAND,"r");
   read=getline(&line,&len,f);
   pclose(f);
-  return read>0?atoi(line):1;
+  nproc_=read>0?atoi(line):1;
+  free(line);
+  return nproc_;
 }
