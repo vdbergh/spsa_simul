@@ -67,6 +67,7 @@ double lf_eval(lf_t *lf, params_t *p);
 #define OPTIONS_PARSE_THREADS           18
 #define OPTIONS_PARSE_UNKNOWN           19
 
+extern const char * options_messages[];
 
 int lf_init(lf_t *lf, int num_params, params_t *elos, params_t *optima, params_t *minima, params_t *maxima);
 void lf_disp(lf_t *lf);
@@ -121,6 +122,6 @@ typedef struct {
   int quiet;
 } options_t;
 
-int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf, options_t *o);
+int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf, options_t *o, const char ** option);
 void options_usage();
 void options_disp(options_t *o);

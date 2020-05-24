@@ -91,10 +91,17 @@ int main(int argc, char **argv){
   options_t o;
   int ret;
   lf_t est_lf;
-  ret=options_parse(argc,argv,&(sim.s),&est_lf,&(sim.true_lf),&o);
+  const char *option;
+  ret=options_parse(argc,argv,&(sim.s),&est_lf,&(sim.true_lf),&o,&option);
   if(ret!=0){
-    options_usage();
-    return 0;
+    if(ret==OPTIONS_PARSE_HELP){
+      options_usage();
+      return 0;
+    }else{
+      printf("%s: %s\n",option,options_messages[ret]);
+      options_usage();
+      return 1;
+    }
   }
   if(!o.quiet){
     printf("general options\n");

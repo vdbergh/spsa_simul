@@ -1,5 +1,28 @@
 #include "spsa_sim.h"
 
+const char * options_messages[] = {
+  NULL,
+  "Illegal number of parameters",
+  "Illegal elo list",
+  "Illegal bounds",
+  NULL,
+  "Illegal confidence level",
+  "Illegal draw ratio",
+  "Illegal seed",
+  "Illegal truncation",
+  "Illegal precision",
+  "Illegal c_ratio",
+  "Illegal lambda_ratio",
+  "Illegal estimated elos",
+  "Illegal true elos",
+  "Illegal minima",
+  "Illegal optima",
+  "Illegal maxima",
+  "Illegal start_elo",
+  "Illegal number of threads",
+  "Unknown option"
+};
+
 const char *options_usage_s="sprsa_simul [-h] [--num_params NUM_PARAMS] "
   "[--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] "
   "[--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] "
@@ -19,7 +42,7 @@ void options_disp(options_t *o){
   printf("quiet             =%d\n",o->quiet);
 }
 
-int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf, options_t *o){
+int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf, options_t *o, const char **option){
   int ret=0;
   int num_params=1;
   params_t *true_elos_=NULL;
@@ -39,16 +62,18 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
   o->quiet=0;
   spsa_init(s);
   for(int i=1;i<=argc-1;i++){
-    if(strcmp(argv[i],"-h")==0){
+    const char *option_=argv[i];
+    *option=option_;
+    if(strcmp(option_,"-h")==0){
       return OPTIONS_PARSE_HELP;
-    }else if(strcmp(argv[i],"--num_params")==0){
+    }else if(strcmp(option_,"--num_params")==0){
       if(i<argc-1){
 	num_params=atoi(argv[i+1]);
 	i++;
       }else{
 	return OPTIONS_PARSE_HELP;
       }
-    }else if(strcmp(argv[i],"--confidence")==0){
+    }else if(strcmp(option_,"--confidence")==0){
       if(i<argc-1){
 	s->confidence=atof(argv[i+1]);
 	if(s->confidence<=0|| s->confidence>=1){
@@ -58,7 +83,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_CONFIDENCE;
       }
-    }else if(strcmp(argv[i],"--draw_ratio")==0){
+    }else if(strcmp(option_,"--draw_ratio")==0){
       if(i<argc-1){
 	s->draw_ratio=atof(argv[i+1]);
 	if(s->draw_ratio<=0|| s->draw_ratio>=1){
@@ -68,14 +93,14 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_DRAW_RATIO;
       }
-    }else if(strcmp(argv[i],"--seed")==0){
+    }else if(strcmp(option_,"--seed")==0){
       if(i<argc-1){
 	o->seed=strtoull(argv[i+1],NULL,0);
 	i++;
       }else{
 	return OPTIONS_PARSE_SEED;
       }
-    }else if(strcmp(argv[i],"--truncate")==0){
+    }else if(strcmp(option_,"--truncate")==0){
       if(i<argc-1){
 	o->truncate=atoi(argv[i+1]);
 	if(o->truncate<0){
@@ -85,9 +110,9 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_TRUNCATE;
       }
-    }else if(strcmp(argv[i],"--bounds")==0){
+    }else if(strcmp(option_,"--bounds")==0){
       s->bounds=1;
-    }else if(strcmp(argv[i],"--precision")==0){
+    }else if(strcmp(option_,"--precision")==0){
       if(i<argc-1){
 	s->precision=atof(argv[i+1]);
 	if(s->precision<=0){
@@ -97,7 +122,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_PRECISION;
       }
-    }else if(strcmp(argv[i],"--c_ratio")==0){
+    }else if(strcmp(option_,"--c_ratio")==0){
       if(i<argc-1){
 	s->c_ratio=atof(argv[i+1]);
 	if(s->c_ratio<=0 || s->c_ratio>=0){
@@ -107,7 +132,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_C_RATIO;
       }
-    }else if(strcmp(argv[i],"--lambda_ratio")==0){
+    }else if(strcmp(option_,"--lambda_ratio")==0){
       if(i<argc-1){
 	s->lambda_ratio=atof(argv[i+1]);
 	if(s->lambda_ratio<=0){
@@ -117,7 +142,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_LAMBDA_RATIO;
       }
-    }else if(strcmp(argv[i],"--est_elos")==0){
+    }else if(strcmp(option_,"--est_elos")==0){
       if(i<argc-1){
 	params_from_string(argv[i+1],&est_elos);
 	est_elos_=&est_elos;
@@ -125,7 +150,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_EST_ELOS;
       }
-    }else if(strcmp(argv[i],"--true_elos")==0){
+    }else if(strcmp(option_,"--true_elos")==0){
       if(i<argc-1){
 	params_from_string(argv[i+1],&true_elos);
 	true_elos_=&true_elos;
@@ -133,7 +158,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_TRUE_ELOS;
       }
-    }else if(strcmp(argv[i],"--minima")==0){
+    }else if(strcmp(option_,"--minima")==0){
       if(i<argc-1){
 	params_from_string(argv[i+1],&minima);
 	minima_=&minima;
@@ -141,7 +166,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_MINIMA;
       }
-    }else if(strcmp(argv[i],"--optima")==0){
+    }else if(strcmp(option_,"--optima")==0){
       if(i<argc-1){
 	params_from_string(argv[i+1],&optima);
 	optima_=&optima;
@@ -149,7 +174,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_OPTIMA;
       }
-    }else if(strcmp(argv[i],"--maxima")==0){
+    }else if(strcmp(option_,"--maxima")==0){
       if(i<argc-1){
 	params_from_string(argv[i+1],&maxima);
 	maxima_=&maxima;
@@ -157,7 +182,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_MAXIMA;
       }
-    }else if(strcmp(argv[i],"--start_elo")==0){
+    }else if(strcmp(option_,"--start_elo")==0){
       if(i<argc-1){
 	o->start_elo=atof(argv[i+1]);
 	if(o->start_elo<0){
@@ -167,9 +192,9 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_START_ELO;
       }
-    }else if(strcmp(argv[i],"--quiet")==0){
+    }else if(strcmp(option_,"--quiet")==0){
       o->quiet=1;
-    }else if(strcmp(argv[i],"--threads")==0){
+    }else if(strcmp(option_,"--threads")==0){
       if(i<argc-1){
 	o->num_threads=atoi(argv[i+1]);
 	if(o->num_threads<1 || o->num_threads>MAX_THREADS){
