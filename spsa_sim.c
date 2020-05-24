@@ -56,8 +56,8 @@ void* spsa_sims(void *args){
     for(int j=0;j<(sim->s).num_params;j++){
       pp[j]=(sim->p)[j];
     }
-    spsa_sim(&prng,&(sim->s),&(sim->lfd),&pp,1);
-    elo=loss_function(&(sim->lfd),&pp);
+    spsa_sim(&prng,&(sim->s),&(sim->true_lfd),&pp,1);
+    elo=loss_function(&(sim->true_lfd),&pp);
     pthread_mutex_lock(&mutex);
     sim->count++;
     sim->elo_total+=elo;
@@ -90,7 +90,8 @@ int main(int argc, char **argv){
   double v;
   options_t o;
   int ret;
-  ret=options_parse(argc,argv,&(sim.s),&(sim.lfd),&o);
+  lfd_t est_lfd;
+  ret=options_parse(argc,argv,&(sim.s),&est_lfd,&(sim.true_lfd),&o);
   if(ret!=0){
     options_usage();
     return 0;
@@ -100,9 +101,13 @@ int main(int argc, char **argv){
     printf("=======\n");
     options_disp(&o);
     printf("\n");
+    printf("guessed loss function\n");
+    printf("=====================\n");
+    lfd_disp(&est_lfd);
+    printf("\n");
     printf("true loss function\n");
     printf("==================\n");
-    lfd_disp(&sim.lfd);
+    lfd_disp(&sim.true_lfd);
     printf("\n");
   }
   sim.prng=o.seed;
@@ -110,26 +115,26 @@ int main(int argc, char **argv){
   sim.pass=0;
   sim.elo_total=0;
   sim.stop=0;
-  spsa_compute(&(sim.s),&(sim.lfd));
+  spsa_compute(&(sim.s),&est_lfd);
   if(!o.quiet){
     printf("spsa data\n");
     printf("=========\n");
     spsa_disp(&(sim.s));
     printf("\n");
   }
-  lfd_start(&(sim.lfd),o.start_elo,&(sim.p));
+  lfd_start(&est_lfd,o.start_elo,&(sim.p));
   if(!o.quiet){
     printf("starting point\n");
     printf("==============\n");
-    params_disp("starting point =",sim.lfd.num_params,&(sim.p));
-    v=loss_function(&(sim.lfd),&(sim.p));
+    params_disp("starting point =",sim.s.num_params,&(sim.p));
+    v=loss_function(&(sim.true_lfd),&(sim.p));
     printf("loss_function  =%f\n\n",v);
   }
   if(!o.quiet){
-    double elo_est=spsa_elo_estimate(&(sim.s), &(sim.lfd), &(sim.p), sim.s.num_games);
-    double noise_est=spsa_noise_estimate(&(sim.s), &(sim.lfd), &(sim.p), sim.s.num_games);
-    printf("theoretical final estimates\n");
-    printf("===========================\n");
+    double elo_est=spsa_elo_estimate(&(sim.s), &(sim.true_lfd), &(sim.p), sim.s.num_games);
+    double noise_est=spsa_noise_estimate(&(sim.s), &(sim.true_lfd), &(sim.p), sim.s.num_games);
+    printf("theoretical final estimates (using the actual loss function)\n");
+    printf("============================================================\n");
     printf("fixed part   =%f\n",elo_est);
     printf("noise part   =%f\n",noise_est);
     printf("total        =%f\n",elo_est+noise_est);

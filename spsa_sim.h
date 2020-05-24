@@ -58,8 +58,8 @@ double loss_function(lfd_t *lfd, params_t *p);
 #define OPTIONS_PARSE_PRECISION          9
 #define OPTIONS_PARSE_C_RATIO           10
 #define OPTIONS_PARSE_LAMBDA_RATIO      11
-#define OPTIONS_PARSE_ELO_PER_PARAMETER 12
-#define OPTIONS_PARSE_ELOS              13
+#define OPTIONS_PARSE_EST_ELOS          12
+#define OPTIONS_PARSE_TRUE_ELOS         13
 #define OPTIONS_PARSE_MINIMA            14
 #define OPTIONS_PARSE_OPTIMA            15
 #define OPTIONS_PARSE_MAXIMA            16
@@ -89,7 +89,7 @@ typedef struct {
 
 void spsa_init(spsa_t *s);
 void spsa_disp(spsa_t *s);
-void spsa_compute(spsa_t *s, lfd_t *lfd);
+void spsa_compute(spsa_t *s, lfd_t *est_lfd);
 double spsa_elo_estimate(spsa_t *s, lfd_t *lfd, params_t *p0, double t);
 double spsa_noise_estimate(spsa_t *s, lfd_t *lfd, params_t *p0, double t);
 
@@ -99,7 +99,7 @@ void params_from_string(const char* str_in, params_t *p);
 typedef struct {
   /* identical for every thread */
   spsa_t s;
-  lfd_t  lfd;
+  lfd_t  true_lfd;
   params_t p;
   /* in/out data */
   /* read and written with mutex */
@@ -122,6 +122,6 @@ typedef struct {
   int quiet;
 } options_t;
 
-int options_parse(int argc, char **argv, spsa_t *s, lfd_t *lfd, options_t *o);
+int options_parse(int argc, char **argv, spsa_t *s, lfd_t *est_lfd, lfd_t *true_lfd, options_t *o);
 void options_usage();
 void options_disp(options_t *o);

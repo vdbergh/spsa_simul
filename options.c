@@ -3,7 +3,7 @@
 const char *options_usage_s="sprsa_simul [-h] [--num_params NUM_PARAMS] "
   "[--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] "
   "[--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] "
-  "[--lambda_ratio LAMBDA_RATIO] [--elo_per_parameter ELO_PER_PARAMETER] "
+  "[--lambda_ratio LAMBDA_RATIO] [--est_elos EST_ELOS,...] "
   "[--true_elos TRUE_ELOS1,...] [--minima MINIMA1,..] [--optima OPTIMA1,..] [--maxima MAXIMA1,...] "
   "[--start_elo START_ELO] [--quiet] [--threads THREADS]";
 
@@ -19,14 +19,16 @@ void options_disp(options_t *o){
   printf("quiet             =%d\n",o->quiet);
 }
 
-int options_parse(int argc, char **argv, spsa_t *s, lfd_t *lfd, options_t *o){
+int options_parse(int argc, char **argv, spsa_t *s, lfd_t *est_lfd, lfd_t *true_lfd, options_t *o){
   int ret=0;
   int num_params=1;
-  params_t *elos_=NULL;
+  params_t *true_elos_=NULL;
+  params_t *est_elos_=NULL;
   params_t *minima_=NULL;
   params_t *optima_=NULL;
   params_t *maxima_=NULL;
-  params_t elos;
+  params_t true_elos;
+  params_t est_elos;
   params_t minima;
   params_t optima;
   params_t maxima;
@@ -115,23 +117,21 @@ int options_parse(int argc, char **argv, spsa_t *s, lfd_t *lfd, options_t *o){
       }else{
 	return OPTIONS_PARSE_LAMBDA_RATIO;
       }
-    }else if(strcmp(argv[i],"--elo_per_parameter")==0){
+    }else if(strcmp(argv[i],"--est_elos")==0){
       if(i<argc-1){
-	s->elo_per_parameter=atof(argv[i+1]);
-	if(s->elo_per_parameter<=0){
-	  return OPTIONS_PARSE_ELO_PER_PARAMETER;
-	}
+	params_from_string(argv[i+1],&est_elos);
+	est_elos_=&est_elos;
 	i++;
       }else{
-	return OPTIONS_PARSE_ELO_PER_PARAMETER;
+	return OPTIONS_PARSE_EST_ELOS;
       }
     }else if(strcmp(argv[i],"--true_elos")==0){
       if(i<argc-1){
-	params_from_string(argv[i+1],&elos);
-	elos_=&elos;
+	params_from_string(argv[i+1],&true_elos);
+	true_elos_=&true_elos;
 	i++;
       }else{
-	return OPTIONS_PARSE_ELOS;
+	return OPTIONS_PARSE_TRUE_ELOS;
       }
     }else if(strcmp(argv[i],"--minima")==0){
       if(i<argc-1){
@@ -183,7 +183,11 @@ int options_parse(int argc, char **argv, spsa_t *s, lfd_t *lfd, options_t *o){
       return OPTIONS_PARSE_UNKNOWN;
     }
   }
-  ret=lfd_init(lfd,num_params,elos_,optima_,minima_,maxima_);
+  ret=lfd_init(est_lfd,num_params,true_elos_,optima_,minima_,maxima_);
+  if(ret!=0){
+    return ret;
+  }
+  ret=lfd_init(true_lfd,num_params,est_elos_,optima_,minima_,maxima_);
   if(ret!=0){
     return ret;
   }
