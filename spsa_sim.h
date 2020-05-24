@@ -76,7 +76,6 @@ typedef struct {
   int num_params;
   double confidence;
   double draw_ratio;
-  double elo_per_parameter;
   double precision;
   double c_ratio;
   double lambda_ratio;

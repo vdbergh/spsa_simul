@@ -9,11 +9,13 @@ double loss_function(lfd_t *lfd, params_t *p){
 }
 
 void lfd_disp(lfd_t *lfd){
-  printf("num_params       =%d\n",lfd->num_params);
-  params_disp("elos             =",lfd->num_params,&(lfd->elos));
-  params_disp("optima           =",lfd->num_params,&(lfd->optima));
-  params_disp("minima           =",lfd->num_params,&(lfd->minima));
-  params_disp("maxima           =",lfd->num_params,&(lfd->maxima));
+  printf("+---------------+-----------------+-----------------+---------------+\n");
+  printf("|      elos     |      minima     |      optima     |     maxima    |\n");
+  printf("+---------------+-----------------+-----------------+---------------+\n");
+  for(int j=0;j<lfd->num_params;j++){
+    printf("|  %10.2f   |   %10.2f    |   %10.2f    |   %10.2f  |\n",lfd->elos[j],lfd->minima[j],lfd->optima[j],lfd->maxima[j]);
+  }
+  printf("+---------------+-----------------+-----------------+---------------+\n");
 }
 
 int lfd_init(lfd_t *lfd, int num_params, params_t *elos, params_t *optima, params_t *minima, params_t *maxima){
@@ -65,6 +67,7 @@ int lfd_init(lfd_t *lfd, int num_params, params_t *elos, params_t *optima, param
       return LFD_INIT_BOUNDS;
     }
   }
+  params_disp("minima=",num_params,&(lfd->minima));
   return 0;
 }
 
