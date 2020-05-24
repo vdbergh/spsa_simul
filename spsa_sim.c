@@ -72,16 +72,16 @@ void* spsa_sims(void *args){
 void mainloop(sim_t *sim, int truncate){
   while(1){
     double p,ci,elo_avg;
+    if(truncate>=0 && sim->count>=truncate){
+      sim->stop=1;
+      break;
+    }
     sleep(2);
     p=sim->pass/(sim->count+0.0);
     ci=3*sqrt(p*(1-p))/sqrt(sim->count);
     elo_avg=sim->elo_total/sim->count;
     printf("sims=%d success=%.4f[%.4f,%.4f] elo_avg=%f\n",sim->count,p,p-ci,p+ci,elo_avg);
     fflush(stdout);
-    if(truncate>=0 && sim->count>=truncate){
-      sim->stop=1;
-      break;
-    }
   }
 }
 
