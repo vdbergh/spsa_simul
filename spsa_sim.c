@@ -100,8 +100,8 @@ int main(int argc, char **argv){
     printf("=======\n");
     options_disp(&o);
     printf("\n");
-    printf("loss function\n");
-    printf("=============\n");
+    printf("true loss function\n");
+    printf("==================\n");
     lfd_disp(&sim.lfd);
     printf("\n");
   }

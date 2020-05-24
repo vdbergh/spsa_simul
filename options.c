@@ -4,7 +4,7 @@ const char *options_usage_s="sprsa_simul [-h] [--num_params NUM_PARAMS] "
   "[--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] "
   "[--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] "
   "[--lambda_ratio LAMBDA_RATIO] [--elo_per_parameter ELO_PER_PARAMETER] "
-  "[--elos ELOS] [--minima MINIMA1,..] [--optima OPTIMA1,..] [--maxima MAXIMA1,...] "
+  "[--true_elos TRUE_ELOS1,...] [--minima MINIMA1,..] [--optima OPTIMA1,..] [--maxima MAXIMA1,...] "
   "[--start_elo START_ELO] [--quiet] [--threads THREADS]";
 
 void options_usage(){
@@ -125,7 +125,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lfd_t *lfd, options_t *o){
       }else{
 	return OPTIONS_PARSE_ELO_PER_PARAMETER;
       }
-    }else if(strcmp(argv[i],"--elos")==0){
+    }else if(strcmp(argv[i],"--true_elos")==0){
       if(i<argc-1){
 	params_from_string(argv[i+1],&elos);
 	elos_=&elos;
