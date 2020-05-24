@@ -67,7 +67,6 @@ int lfd_init(lfd_t *lfd, int num_params, params_t *elos, params_t *optima, param
       return LFD_INIT_BOUNDS;
     }
   }
-  params_disp("minima=",num_params,&(lfd->minima));
   return 0;
 }
 
