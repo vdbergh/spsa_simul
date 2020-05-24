@@ -97,8 +97,8 @@ int main(int argc, char **argv){
     return 0;
   }
   if(!o.quiet){
-    printf("options\n");
-    printf("=======\n");
+    printf("general options\n");
+    printf("===============\n");
     options_disp(&o);
     printf("\n");
     printf("guessed loss function\n");

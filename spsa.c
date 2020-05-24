@@ -3,14 +3,14 @@
 #define C 347.43558552260146
 
 void spsa_disp(spsa_t *s){
-  printf("[design]\n");
+  printf("~~~~~~~design~~~~~~~ \n");
   printf("num_params        =%d\n",s->num_params);
   printf("confidence        =%f\n",s->confidence);
   printf("draw_ratio        =%f\n",s->draw_ratio);
   printf("precision         =%f\n",s->precision);
   printf("c_ratio           =%f\n",s->c_ratio);
   printf("lambda_ratio      =%f\n",s->lambda_ratio);
-  printf("[computed]\n");
+  printf("~~~~~~~computed~~~~~~~ \n");
   printf("r                 =%f\n",s->r);
   params_disp("c                 =",s->num_params,&(s->c));
   printf("num_games         =%d\n",s->num_games);
