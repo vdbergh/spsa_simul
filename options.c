@@ -31,7 +31,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lfd_t *lfd, options_t *o){
   params_t optima;
   params_t maxima;
   o->seed=(uint64_t) time(0);
-  o->truncate=0;
+  o->truncate=-1;
   o->start_elo=2;
   o->num_threads=nproc();
   o->quiet=0;
@@ -76,6 +76,9 @@ int options_parse(int argc, char **argv, spsa_t *s, lfd_t *lfd, options_t *o){
     }else if(strcmp(argv[i],"--truncate")==0){
       if(i<argc-1){
 	o->truncate=atoi(argv[i+1]);
+	if(o->truncate<0){
+	  return OPTIONS_PARSE_TRUNCATE;
+	}
 	i++;
       }else{
 	return OPTIONS_PARSE_TRUNCATE;

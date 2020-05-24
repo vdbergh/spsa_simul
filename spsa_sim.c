@@ -69,7 +69,7 @@ void* spsa_sims(void *args){
   return NULL;
 }
 
-void mainloop(sim_t *sim){
+void mainloop(sim_t *sim, int truncate){
   while(1){
     double p,ci,elo_avg;
     sleep(2);
@@ -78,6 +78,10 @@ void mainloop(sim_t *sim){
     elo_avg=sim->elo_total/sim->count;
     printf("sims=%d success=%.4f[%.4f,%.4f] elo_avg=%f\n",sim->count,p,p-ci,p+ci,elo_avg);
     fflush(stdout);
+    if(truncate>=0 && sim->count>=truncate){
+      sim->stop=1;
+      break;
+    }
   }
 }
 
@@ -134,7 +138,7 @@ int main(int argc, char **argv){
   for(int i=0;i<o.num_threads;i++){
     pthread_create(&(threads[i]), NULL, spsa_sims, (void*) (&sim));
   }
-  mainloop(&sim);
+  mainloop(&sim,o.truncate);
   for(int i=0;i<o.num_threads;i++){
     pthread_join(threads[i], NULL);
   }
