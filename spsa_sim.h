@@ -8,6 +8,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "gx2.h"
+
 #define MAX_THREADS 128
 
 #define NPROC_COMMAND "/usr/bin/nproc"
@@ -125,3 +127,14 @@ typedef struct {
 int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf, options_t *o, const char ** option);
 void options_usage();
 void options_disp(options_t *o);
+
+typedef struct {
+  int num_params;
+  params_t coeffs;
+  params_t mu;
+  params_t var;
+} sos_t;  /* sum of squares */
+
+void sos_disp(sos_t *sos);
+double sos_cdf(sos_t *sos, double x);
+double sos_ppf(sos_t *sos, double p);

@@ -1,6 +1,6 @@
 #include <math.h>
-#include <float.h>
 #include <stdio.h>
+#include <float.h>
 #include <gsl/gsl_cdf.h>
 #include <assert.h>
 
@@ -77,7 +77,7 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
        stats->error_num=GX2CDF_NEGATIVE_DF;
        return 0;
     }
-    if(lambda[i]<=0){
+    if(lambda[i]<0){
        stats->error_num=GX2CDF_NEGATIVE_LAMBDA;
        return 0;
     }
@@ -123,7 +123,7 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
     double err_=(1-s)*chi2;
     stats->truncation_error=err_;
     if(fabs(err_)<tol){
-      stats->error_num=GX2CDF_CONVERGED;
+      stats->error_num=GX2_CONVERGED;
       return p;
     }
     g[k]=0;
@@ -159,7 +159,7 @@ static double f(double x, void *args){
   ps=(p_t *)(args);
   double ret=gx2cdf(ps->nt, x, ps->coeffs, ps->df, ps->lambda, tol, &stats)-ps->p;
   *(ps->chi2_calls)+=stats.chi2_calls;
-  if(*(ps->error_num)==GX2CDF_CONVERGED){
+  if(*(ps->error_num)==GX2_CONVERGED){
     *(ps->error_num)=stats.error_num;
   }
   return ret;
@@ -169,6 +169,11 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
   p_t args;
   int error_num;
   int chi2_calls;
+
+  if(p<=0 || p>=1){
+    stats->error_num=GX2PPF_NOT_A_PROBABILITY;
+  }
+  
   stats->truncation_error=0;  /* not used */
   
   args.nt=nt;
@@ -176,7 +181,7 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
   args.df=df;
   args.lambda=lambda;
   args.error_num=&error_num;
-  error_num=GX2CDF_CONVERGED;
+  error_num=GX2_CONVERGED;
   args.chi2_calls=&chi2_calls;
   chi2_calls=0;
   args.p=p;
@@ -190,7 +195,7 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
       break;
     }
   }
-  if(*(args.error_num)!= GX2CDF_CONVERGED){
+  if(*(args.error_num)!= GX2_CONVERGED){
     stats->error_num=*(args.error_num);
     return 0;
   }else{
@@ -200,10 +205,20 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
     }else if(stats_.error_num==CONVERR){
       stats->error_num=GX2PPF_NOT_CONVERGED;
       return 0;
+    }else{
+      stats->error_num=GX2_CONVERGED;
     }
   }
   stats->chi2_calls+=*(args.chi2_calls);
   stats->iterations=stats_.iterations;
   stats->funcalls=stats_.funcalls;
   return x0;
+}
+
+void gx2_stats_disp(gx2_stats_t *stats){
+  printf("error_num        =%d\n",stats->error_num);
+  printf("iterations       =%d\n",stats->iterations);
+  printf("funcalls         =%d\n",stats->funcalls);
+  printf("chi2_calls       =%d\n",stats->chi2_calls);
+  printf("truncation_error =%f\n",stats->truncation_error);
 }
