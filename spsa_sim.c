@@ -138,17 +138,12 @@ int main(int argc, char **argv){
     printf("true loss function  =%f\n\n",v);
   }
   if(!o.quiet){
-    double elo_est=spsa_elo_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
-    double noise_est=spsa_noise_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
     double success_est=spsa_success_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
     double fixed;
     double noise;
-    spsa_elo_expected(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, &fixed, &noise);
+    spsa_elo_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, &fixed, &noise);
     printf("theoretical characteristics (using the true loss function)\n");
     printf("==========================================================\n");
-    printf("elo average (fixed part)  =%f\n",elo_est);
-    printf("elo average (noise part)  =%f\n",noise_est);
-    printf("elo average               =%f\n",elo_est+noise_est);
     printf("elo average (fixed part)  =%f\n",fixed);
     printf("elo average (noise part)  =%f\n",noise);
     printf("elo average               =%f\n",fixed+noise);

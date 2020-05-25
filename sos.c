@@ -36,8 +36,8 @@ void sos_expected(sos_t *sos, double *fixed, double *noise){
   *fixed=0;
   *noise=0;
   for(int j=0;j<sos->num_params;j++){
-    *fixed-=sos->coeffs[j]*pow(sos->mu[j],2);
-    *noise-=sos->coeffs[j]*sos->var[j];
+    *fixed=sos->coeffs[j]*pow(sos->mu[j],2);
+    *noise=sos->coeffs[j]*sos->var[j];
   }
 }
 
