@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-I. -std=gnu99 -O3 -Wall
 LIBS= -lm -lpthread -lgsl -lgslcblas
 DEPS = spsa_sim.h
-OBJ = elo.o lf.o myrand.o options.o spsa.o spsa_sim.o util.o
+OBJ = brentq.o elo.o gx2.o lf.o myrand.o options.o sos.o spsa.o spsa_sim.o util.o
 EXE = spsa_sim
 
 %.o: %.c $(DEPS)
