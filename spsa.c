@@ -70,6 +70,12 @@ double spsa_noise_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t){
   return ss;
 }
 
+void spsa_elo_expected(spsa_t *s, lf_t *lf, params_t *p0, double t, double *fixed, double *noise){
+  sos_t sos;
+  sos_from_lf_spsa(&sos, lf, s, p0, t);
+  sos_expected(&sos,fixed,noise);
+}
+
 double spsa_success_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t){
   sos_t sos;
   sos_from_lf_spsa(&sos, lf, s, p0, t);

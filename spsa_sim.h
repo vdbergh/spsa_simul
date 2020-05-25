@@ -98,6 +98,7 @@ void spsa_compute(spsa_t *s, lf_t *est_lf);
 double spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
 double spsa_noise_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
 double spsa_success_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
+void spsa_elo_expected(spsa_t *s, lf_t *lf, params_t *p0, double t, double *fixed, double *noise);
 
 void params_disp(const char *prompt, int num_params, params_t *p);
 void params_from_string(const char* str_in, params_t *p);
@@ -142,4 +143,5 @@ typedef struct {
 void sos_disp(sos_t *sos);
 double sos_cdf(sos_t *sos, double x);
 double sos_ppf(sos_t *sos, double p);
+void sos_expected(sos_t *sos, double *fixed, double *noise);
 void sos_from_lf_spsa(sos_t *sos, lf_t *lf, spsa_t *s, params_t *p, double t);
