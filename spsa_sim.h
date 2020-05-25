@@ -7,8 +7,11 @@
 #include <inttypes.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "gx2.h"
+
+#define C 347.43558552260146
 
 #define MAX_THREADS 128
 
@@ -94,6 +97,7 @@ void spsa_disp(spsa_t *s);
 void spsa_compute(spsa_t *s, lf_t *est_lf);
 double spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
 double spsa_noise_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
+double spsa_success_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
 
 void params_disp(const char *prompt, int num_params, params_t *p);
 void params_from_string(const char* str_in, params_t *p);
@@ -138,3 +142,4 @@ typedef struct {
 void sos_disp(sos_t *sos);
 double sos_cdf(sos_t *sos, double x);
 double sos_ppf(sos_t *sos, double p);
+void sos_from_lf_spsa(sos_t *sos, lf_t *lf, spsa_t *s, params_t *p, double t);

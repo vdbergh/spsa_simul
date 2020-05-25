@@ -1,7 +1,5 @@
 #include "spsa_sim.h"
 
-#define C 347.43558552260146
-
 void spsa_disp(spsa_t *s){
   printf("~~~~~~~design~~~~~~~ \n");
   printf("num_params        =%d\n",s->num_params);
@@ -72,5 +70,9 @@ double spsa_noise_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t){
   return ss;
 }
 
-
+double spsa_success_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t){
+  sos_t sos;
+  sos_from_lf_spsa(&sos, lf, s, p0, t);
+  return sos_cdf(&sos,s->precision);
+}
 
