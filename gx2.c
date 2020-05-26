@@ -4,10 +4,8 @@
 #include <gsl/gsl_cdf.h>
 #include <assert.h>
 
-#include "brentq.h"
-
 #include "gx2.h"
-
+#include "brentq.h"
 
 static const int K=1000;
 
@@ -64,7 +62,6 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
     stats->error_num=GX2CDF_NEGATIVE_ITERATIONS;
     return 0;
   }
-  
   
   for(int i=0;i<nt;i++){
     if(coeffs[i]<=0){
@@ -164,6 +161,34 @@ static double f(double x, void *args){
 }
 
 double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double tol, gx2_stats_t *stats){
+  /*
+    Returns the PPF of a generalized chi-squared (a weighted sum of
+    non-central chi-squares with positive weights) by numerically inverting the CDF.
+
+    Example:
+    double nt      =3;
+    double p       =0.1481396848655497;
+    double coeffs[]={1,5,2};
+    int    df[]    ={1,2,3};
+    double lambda[] ={2,3,7};
+    double tol      =1e-15;
+    cx2cdf stats_t stats;
+
+    double x=gx2ppf(nt,p,coeffs,df,lambda,tol,&stats);
+
+    Inputs:
+    nt        number of terms in the weighted sum
+    p         point at which to evaluate the PPF
+    coeffs    array of coefficients of the non-central chi-squares
+    df        array of degrees of freedom of the non-central chi-squares
+    lambda    array of non-centrality parameters (sum of squares of
+              means) of the non-central chi-squares
+    tol       requested tolerance
+    Outputs:
+    x         computed PPF
+    stats     statistcs (convergence, chi2_calls, funcalls, iterations)
+  */
+
   p_t args;
   int error_num;
   int chi2_calls;
