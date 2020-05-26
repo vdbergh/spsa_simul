@@ -27,19 +27,17 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
     double coeffs[]={1,5,2};
     int    df[]    ={1,2,3};
     double lambda[] ={2,3,7};
-    double c       =0;
-    int    K       =100;
-    double p;
+    double tol      =1e-17;
     cx2cdf stats_t stats;
 
     double p=gx2cdf(nt,x,coeffs,df,lambda,tol,&stats);
 
     Inputs:
-    nt        number of iterations in the weighted sum
+    nt        number of terms in the weighted sum
     x         point at which to evaluate the CDF
-    coeffs    row vector of coefficients of the non-central chi-squares
-    df        row vector of degrees of freedom of the non-central chi-squares
-    lambda     row vector of non-centrality parameters (sum of squares of
+    coeffs    array of coefficients of the non-central chi-squares
+    df        array of degrees of freedom of the non-central chi-squares
+    lambda    array of non-centrality parameters (sum of squares of
               means) of the non-central chi-squares
     tol       requested tolerance
     Outputs:
