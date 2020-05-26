@@ -2,16 +2,15 @@
 #define GX2CDF_H
 
 #define GX2_CONVERGED              0
-#define GX2CDF_NEGATIVE_TERMS      1
-#define GX2CDF_NEGATIVE_COEFFS     2
-#define GX2CDF_NEGATIVE_DF         3
-#define GX2CDF_NEGATIVE_LAMBDA     4
-#define GX2CDF_NEGATIVE_ITERATIONS 5
-#define GX2CDF_UNDERFLOW           6
-#define GX2CDF_NOT_CONVERGED       7
-#define GX2PPF_SIGN_ERROR          8
-#define GX2PPF_NOT_CONVERGED       9
-#define GX2PPF_NOT_A_PROBABILITY  10
+#define GX2_NEGATIVE_TERMS         1
+#define GX2_NEGATIVE_COEFFS        2
+#define GX2_NEGATIVE_DF            3
+#define GX2_NEGATIVE_LAMBDA        4
+#define GX2CDF_UNDERFLOW           5
+#define GX2CDF_NOT_CONVERGED       6
+#define GX2PPF_SIGN_ERROR          7
+#define GX2PPF_NOT_CONVERGED       8
+#define GX2PPF_NOT_A_PROBABILITY   9
 
 typedef struct {
   int error_num;

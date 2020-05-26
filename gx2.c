@@ -9,6 +9,27 @@
 
 static const int K=1000;
 
+void gx2_validate(int nt, double *coeffs, int *df, double *lambda, gx2_stats_t *stats){
+  if(nt<=0){
+    stats->error_num=GX2_NEGATIVE_TERMS;
+    return;
+  }
+  for(int i=0;i<nt;i++){
+    if(coeffs[i]<=0){
+       stats->error_num=GX2_NEGATIVE_COEFFS;
+       return;
+    }
+    if(df[i]<=0){
+       stats->error_num=GX2_NEGATIVE_DF;
+       return;
+    }
+    if(lambda[i]<0){
+       stats->error_num=GX2_NEGATIVE_LAMBDA;
+       return;
+    }
+  }
+}
+
 double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double tol, gx2_stats_t *stats){
   /*
     Returns the CDF of a generalized chi-squared (a weighted sum of
@@ -52,31 +73,18 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
     Hand translated to C by Michel Van den Bergh.
   */
 
+  stats->error_num=0;
+  gx2_validate(nt,coeffs,df,lambda,stats);
+  if(stats->error_num!=0){
+    return 0;
+  }
+
   stats->error_num=GX2CDF_NOT_CONVERGED;
   stats->iterations=0; /* not used */
   stats->chi2_calls=0; 
   stats->truncation_error=0;
   stats->funcalls=0; /* not used */
 
-  if(nt<=0){
-    stats->error_num=GX2CDF_NEGATIVE_ITERATIONS;
-    return 0;
-  }
-  
-  for(int i=0;i<nt;i++){
-    if(coeffs[i]<=0){
-       stats->error_num=GX2CDF_NEGATIVE_COEFFS;
-       return 0;
-    }
-    if(df[i]<=0){
-       stats->error_num=GX2CDF_NEGATIVE_DF;
-       return 0;
-    }
-    if(lambda[i]<0){
-       stats->error_num=GX2CDF_NEGATIVE_LAMBDA;
-       return 0;
-    }
-  }
 
   double coeffs_min=-1;
   for(int i=0;i<nt;i++){
@@ -193,6 +201,12 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
   int error_num;
   int chi2_calls;
 
+  stats->error_num=0;
+  gx2_validate(nt,coeffs,df,lambda,stats);
+  if(stats->error_num!=0){
+    return 0;
+  }
+  
   if(p<=0 || p>=1){
     stats->error_num=GX2PPF_NOT_A_PROBABILITY;
   }
