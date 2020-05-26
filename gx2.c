@@ -85,7 +85,6 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
   stats->truncation_error=0;
   stats->funcalls=0; /* not used */
 
-
   double coeffs_min=-1;
   for(int i=0;i<nt;i++){
     if(coeffs_min<0 || coeffs[i]<coeffs_min){
@@ -102,30 +101,29 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
     D+=lambda[i];
   }
 
-  double a[K];
   double prod=exp(-D)*pow(beta,M);
   for(int i=0;i<nt;i++){
     prod*=pow(coeffs[i],-df[i]);
   }
   prod=sqrt(prod);
   
-  a[0]=prod; 
-  if(a[0]<FLT_MIN){
+  if(prod<FLT_MIN){
      stats->error_num=GX2CDF_UNDERFLOW;
      return 0;
   }
 
-  double s=a[0];
+  double a[K];
+  a[0]=prod; 
   double p=a[0]*gsl_cdf_chisq_P(x/beta, M); 
   stats->chi2_calls++; 
 
+  double sum_a=a[0];
   double g[K-1];
   for(int k=0;k<=K-2;k++){
     double chi2=gsl_cdf_chisq_P(x/beta, M+2*(k+1));
     stats->chi2_calls++;
-    double err_=(1-s)*chi2;
-    stats->truncation_error=err_;
-    if(fabs(err_)<tol){
+    stats->truncation_error=(1-sum_a)*chi2;
+    if(fabs(stats->truncation_error)<tol){
       stats->error_num=GX2_CONVERGED;
       return p;
     }
@@ -139,7 +137,7 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
       a[k+1]+=g[u]*a[k-u];
     }
     a[k+1]/=2*(k+1);
-    s+=a[k+1];
+    sum_a+=a[k+1];
     p+=a[k+1]*chi2;
   }
   return 0;
@@ -209,6 +207,7 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
   
   if(p<=0 || p>=1){
     stats->error_num=GX2PPF_NOT_A_PROBABILITY;
+    return 0;
   }
   
   stats->truncation_error=0;  /* not used */
@@ -222,13 +221,13 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
   args.chi2_calls=&chi2_calls;
   chi2_calls=0;
   args.p=p;
-  stats_t stats_={0,0,0};
+  stats_t brentq_stats={0,0,0};
   double rb=10;
   double x0;
   for(double rb_=rb;rb_<1500;rb_*=2){
-    stats_.error_num=0;
-    x0=brentq(f,0,rb_,tol,tol,K,&stats_,&args);
-    if(stats_.error_num!=SIGNERR){
+    brentq_stats.error_num=0;
+    x0=brentq(f,0,rb_,tol,tol,K,&brentq_stats,&args);
+    if(brentq_stats.error_num!=SIGNERR){
       break;
     }
   }
@@ -236,10 +235,10 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
     stats->error_num=*(args.error_num);
     return 0;
   }else{
-    if(stats_.error_num==SIGNERR){
+    if(brentq_stats.error_num==SIGNERR){
       stats->error_num=GX2PPF_SIGN_ERROR;
       return 0;
-    }else if(stats_.error_num==CONVERR){
+    }else if(brentq_stats.error_num==CONVERR){
       stats->error_num=GX2PPF_NOT_CONVERGED;
       return 0;
     }else{
@@ -247,8 +246,8 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
     }
   }
   stats->chi2_calls+=*(args.chi2_calls);
-  stats->iterations=stats_.iterations;
-  stats->funcalls=stats_.funcalls;
+  stats->iterations=brentq_stats.iterations;
+  stats->funcalls=brentq_stats.funcalls;
   return x0;
 }
 
