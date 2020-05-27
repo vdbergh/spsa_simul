@@ -61,3 +61,9 @@ double spsa_success_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t){
   return sos_cdf(&sos,s->precision);
 }
 
+double spsa_percentile(spsa_t *s, lf_t *lf, params_t *p0, double t, double p){
+  sos_t sos;
+  sos_from_lf_spsa(&sos, lf, s, p0, t);
+  return -sos_ppf(&sos,p);
+}
+

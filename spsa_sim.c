@@ -142,11 +142,15 @@ int main(int argc, char **argv){
     double fixed;
     double noise;
     spsa_elo_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, &fixed, &noise);
+    double p50=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, 0.5);
+    double p95=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, 0.95);
     printf("theoretical characteristics (using the true loss function)\n");
     printf("==========================================================\n");
-    printf("elo average (fixed part)  =%f\n",fixed);
-    printf("elo average (noise part)  =%f\n",noise);
-    printf("elo average               =%f\n",fixed+noise);
+    printf("elo average               =%f Elo\n",fixed+noise);
+    printf("       fixed part         =%f Elo\n",fixed);
+    printf("       noise part         =%f Elo\n",noise);
+    printf("50%% percentile            =%f Elo\n",p50);
+    printf("95%% percentile            =%f Elo\n",p95);
     printf("success rate              =%f\n",success_est);
     printf("\n");
   }
