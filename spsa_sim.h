@@ -14,6 +14,7 @@
 #define C 347.43558552260146
 
 #define MAX_THREADS 128
+#define MAX_PERCENTILES 20
 
 #define NPROC_COMMAND "/usr/bin/nproc"
 
@@ -104,19 +105,22 @@ void params_from_string(const char* str_in, params_t *p);
 
 typedef struct {
   /* identical for every thread */
-  spsa_t s;
-  lf_t  true_lf;
+  spsa_t   s;
+  lf_t     true_lf;
   params_t p;
+  int      num_percentiles;
+  double   percentiles[MAX_PERCENTILES];
   /* in/out data */
   /* read and written with mutex */
            uint64_t prng;
   /* flag, read and written without mutex */
   /* volatile for safety */
   volatile int      stop;
-  /* feedback variables, read without mutex */
+  /* summary variables, read without mutex */
   /* volatile for safety */
   volatile int      count;
-  volatile int      pass;
+  volatile int      pass_count;
+  volatile int      percentiles_count[MAX_PERCENTILES];
   volatile double   elo_total;
 } sim_t;
 

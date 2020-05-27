@@ -62,7 +62,12 @@ void* spsa_sims(void *args){
     sim->count++;
     sim->elo_total+=elo;
     if(fabs(elo)<=(sim->s).precision){
-      sim->pass++;
+      sim->pass_count++;
+    }
+    for(int i=0;i<sim->num_percentiles;i++){
+      if(fabs(elo)<=sim->percentiles[i]){
+	sim->percentiles_count[i]++;
+      }
     }
     pthread_mutex_unlock(&mutex);
   }
@@ -77,10 +82,12 @@ void mainloop(sim_t *sim, int truncate){
       break;
     }
     sleep(2);
-    p=sim->pass/(sim->count+0.0);
+    p=sim->pass_count/(sim->count+0.0);
     ci=3*sqrt(p*(1-p))/sqrt(sim->count);
     elo_avg=sim->elo_total/sim->count;
-    printf("sims=%d success=%.4f[%.4f,%.4f] elo_avg=%f\n",sim->count,p,p-ci,p+ci,elo_avg);
+    double p50=sim->percentiles_count[0]/(sim->count+0.0);
+    double p95=sim->percentiles_count[1]/(sim->count+0.0);
+    printf("sims=%d success=%.4f[%.4f,%.4f] elo_avg=%f p50=%f p95=%f\n",sim->count,p,p-ci,p+ci,elo_avg,p50,p95);
     fflush(stdout);
   }
 }
@@ -119,7 +126,7 @@ int main(int argc, char **argv){
   }
   sim.prng=o.seed;
   sim.count=0;
-  sim.pass=0;
+  sim.pass_count=0;
   sim.elo_total=0;
   sim.stop=0;
   spsa_compute(&(sim.s),&est_lf);
@@ -137,13 +144,18 @@ int main(int argc, char **argv){
     v=lf_eval(&(sim.true_lf),&(sim.p));
     printf("true loss function  =%f\n\n",v);
   }
+  double success_est=spsa_success_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
+  double fixed;
+  double noise;
+  spsa_elo_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, &fixed, &noise);
+  double p50=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, 0.5);
+  double p95=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, 0.95);
+  sim.num_percentiles=2;
+  sim.percentiles[0]=fabs(p50);
+  sim.percentiles[1]=fabs(p95);
+  sim.percentiles_count[0]=0;
+  sim.percentiles_count[1]=0;
   if(!o.quiet){
-    double success_est=spsa_success_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
-    double fixed;
-    double noise;
-    spsa_elo_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, &fixed, &noise);
-    double p50=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, 0.5);
-    double p95=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, 0.95);
     printf("theoretical characteristics (using the true loss function)\n");
     printf("==========================================================\n");
     printf("elo average               =%f Elo\n",fixed+noise);
