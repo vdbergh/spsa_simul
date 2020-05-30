@@ -8,6 +8,7 @@ void spsa_disp(spsa_t *s){
   printf("precision         =%f\n",s->precision);
   printf("c_ratio           =%f\n",s->c_ratio);
   printf("lambda_ratio      =%f\n",s->lambda_ratio);
+  printf("bounds            =%d\n",s->bounds);
   printf("~~~~~~~computed~~~~~~~ \n");
   printf("r                 =%f\n",s->r);
   params_disp("c                 =",s->num_params,&(s->c));
