@@ -11,18 +11,6 @@ double brentq(callback_type f, double xa, double xb, double xtol, double rtol, i
   double x_lo = xa;
   double x_hi = xb;
   gsl_function F;
-  double f_lo=(*f)(xa,args);
-  double f_hi=(*f)(xb,args);
-  if (f_lo*f_hi > 0) {
-    stats->error_num = SIGNERR;
-    return 0;
-  }
-  if (f_lo == 0) {
-    return x_lo;
-  }
-  if (f_hi == 0) {
-    return x_hi;
-  }
   stats->error_num  = CONVERR;
   stats->funcalls   = 0; /* not used */
   stats->iterations = 0;
@@ -30,8 +18,15 @@ double brentq(callback_type f, double xa, double xb, double xtol, double rtol, i
   F.params = args;
   T = gsl_root_fsolver_brent;
   s = gsl_root_fsolver_alloc (T);
-  gsl_root_fsolver_set (s, &F, x_lo, x_hi);
-  status=GSL_CONTINUE;
+  gsl_set_error_handler_off();
+  status=gsl_root_fsolver_set (s, &F, x_lo, x_hi);
+  if(status==GSL_SUCCESS){
+    status=GSL_CONTINUE;
+  }else if(status==GSL_EINVAL){
+    stats->error_num=SIGNERR;
+  }else{
+    stats->error_num=100+status;
+  }
   for(int i=0;i<iter && status==GSL_CONTINUE;i++){
     stats->iterations++;
     status = gsl_root_fsolver_iterate (s);
