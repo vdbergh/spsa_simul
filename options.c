@@ -125,7 +125,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
     }else if(strcmp(option_,"--c_ratio")==0){
       if(i<argc-1){
 	s->c_ratio=atof(argv[i+1]);
-	if(s->c_ratio<=0 || s->c_ratio>=0){
+	if(s->c_ratio<=0 || s->c_ratio>=0.5){
 	  return OPTIONS_PARSE_C_RATIO;
 	}
 	i++;

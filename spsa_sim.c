@@ -5,6 +5,7 @@ pthread_t threads[MAX_THREADS];
 
 void spsa_sim_step(uint64_t *prng, spsa_t *s,lf_t *lf,params_t *p){
   params_t flips,p_minus,p_plus;
+  double pp;
   double elo0,elo1;
   double r;
   for(int j=0;j<s->num_params;j++){
@@ -14,8 +15,10 @@ void spsa_sim_step(uint64_t *prng, spsa_t *s,lf_t *lf,params_t *p){
     }else{
       flips[j]=-1;
     }
-    p_minus[j]=(*p)[j]-flips[j]*s->c[j];
-    p_plus[j]=(*p)[j]+flips[j]*s->c[j];
+    pp=(((*p)[j]-s->c[j])>=(lf->minima[j])||!(s->bounds))?(*p)[j]:(lf->minima[j]+s->c[j]);
+    pp=((pp+s->c[j])<=(lf->maxima[j])||!(s->bounds))?pp:(lf->maxima[j]-s->c[j]);
+    p_minus[j]=pp-flips[j]*s->c[j];
+    p_plus[j]=pp+flips[j]*s->c[j];
   }
   elo0=lf_eval(lf,&p_minus);
   elo1=lf_eval(lf,&p_plus);

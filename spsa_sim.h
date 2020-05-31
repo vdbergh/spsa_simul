@@ -86,7 +86,7 @@ typedef struct {
   double precision;
   double c_ratio;
   double lambda_ratio;
-  double bounds;
+  int bounds;
   /* computed */
   double r;
   params_t c;
