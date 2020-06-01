@@ -26,7 +26,10 @@ double prng_get(prng_t *prng){
   return current/pow2_64;
 }
 
-void prng_jump(prng_t *prng){
-  /* do 2^48 steps */
-  *prng=a48*(*prng)+b48;
+void prng_split(prng_t *master, prng_t *out){
+  /* This is a poor man's splittable prng.
+     It can only do a linear tree.
+  */
+  *master=a48*(*master)+b48;   /* do 2^48 steps */
+  *out=*master;
 }

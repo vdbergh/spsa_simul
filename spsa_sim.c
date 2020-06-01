@@ -50,8 +50,7 @@ void* spsa_sims(void *args){
   sim=(sim_t *)(args);
   prng_t prng;
   pthread_mutex_lock(&mutex);
-  prng_jump(&(sim->prng));
-  prng=sim->prng;
+  prng_split(&(sim->prng),&prng);
   pthread_mutex_unlock(&mutex);
   while(!sim->stop){
     double elo;
