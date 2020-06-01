@@ -3,17 +3,32 @@
 
 #include "brentq.h"
 
+typedef struct {
+  callback_type *f;
+  int funcalls;
+  void *args;
+} callback_wrapper_t;
+
+double callback_wrapper(double x, void *args){
+  callback_wrapper_t *c=(callback_wrapper_t *)(args);
+  c->funcalls++;
+  return (**(c->f))(x,c->args);
+}
+
 double brentq(callback_type f, double xa, double xb, double xtol, double rtol, int iter, stats_t *stats, void *args){
   int status;
   const gsl_root_fsolver_type *T;
   gsl_root_fsolver *s;
   double r = 0;
   gsl_function F;
+  callback_wrapper_t c;
+  c.f=&f;
+  c.funcalls=0;
+  c.args=args;
   stats->error_num  = CONVERR;
-  stats->funcalls   = 0; /* not used */
   stats->iterations = 0;
-  F.function = f;
-  F.params = args;
+  F.function = callback_wrapper;
+  F.params = (void *)(&c);
   T = gsl_root_fsolver_brent;
   s = gsl_root_fsolver_alloc (T);
   gsl_set_error_handler_off();
@@ -34,6 +49,7 @@ double brentq(callback_type f, double xa, double xb, double xtol, double rtol, i
       stats->error_num=0;
     }
   }
+  stats->funcalls=c.funcalls;
   gsl_root_fsolver_free (s);
   return r;
 }
