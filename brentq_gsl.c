@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_errno.h>
 
@@ -36,18 +38,22 @@ double brentq(callback_type f, double xa, double xb, double xtol, double rtol, i
   if(status==GSL_EINVAL){
     stats->error_num=SIGNERR;
   }else{
+    assert(status==GSL_SUCCESS);
     status=GSL_CONTINUE;
   }
   for(int i=0;i<iter && status==GSL_CONTINUE;i++){
     stats->iterations++;
-    gsl_root_fsolver_iterate (s);
+    status=gsl_root_fsolver_iterate (s);
+    assert(status==GSL_SUCCESS);
     r = gsl_root_fsolver_root (s);
     xa = gsl_root_fsolver_x_lower (s);
     xb = gsl_root_fsolver_x_upper (s);
     status = gsl_root_test_interval (xa, xb, xtol, rtol);
     if (status == GSL_SUCCESS){
       stats->error_num=0;
+      break;
     }
+    assert(status==GSL_CONTINUE);
   }
   stats->funcalls=c.funcalls;
   gsl_root_fsolver_free (s);
