@@ -4,7 +4,7 @@
 #include "brentq.h"
 
 typedef struct {
-  callback_type *f;
+  callback_type f;
   int funcalls;
   void *args;
 } callback_wrapper_t;
@@ -12,7 +12,7 @@ typedef struct {
 double callback_wrapper(double x, void *args){
   callback_wrapper_t *c=(callback_wrapper_t *)(args);
   c->funcalls++;
-  return (**(c->f))(x,c->args);
+  return (*(c->f))(x,c->args);
 }
 
 double brentq(callback_type f, double xa, double xb, double xtol, double rtol, int iter, stats_t *stats, void *args){
@@ -22,7 +22,7 @@ double brentq(callback_type f, double xa, double xb, double xtol, double rtol, i
   double r = 0;
   gsl_function F;
   callback_wrapper_t c;
-  c.f=&f;
+  c.f=f;
   c.funcalls=0;
   c.args=args;
   stats->error_num  = CONVERR;
