@@ -10,11 +10,11 @@ static const uint64_t b       = UINT64_C(3037000493);
 static const uint64_t a48     = UINT64_C(3311271626024157185);
 static const uint64_t b48     = UINT64_C(8774982398954700800);
 
-prng_t prng_seed(void){
+void prng_init(prng_t *prng){
   struct timespec t;
   int ret=clock_gettime(CLOCK_REALTIME,&t);
   assert(ret==0);
-  return pow10_9*((uint64_t) t.tv_sec)+((uint64_t) t.tv_nsec);
+  *prng=pow10_9*((uint64_t) t.tv_sec)+((uint64_t) t.tv_nsec);
 }
 
 double prng_get(prng_t *prng){
