@@ -4,8 +4,8 @@ double L(double x){
   return 1/(1+pow(10,-x/400.0));
 }
 
-int pick(uint64_t *prng, double w,double d,double l){
-  double s=myrand(prng);
+int pick(prng_t *prng, double w,double d,double l){
+  double s=prng_get(prng);
   if(s<=w){
     return WIN;
   }else if(s<=w+d){
@@ -25,7 +25,7 @@ void wdl(double draw_ratio,double elo,double *wdl_out){
   wdl_out[LOSS]=l;
 }
 
-int match(uint64_t *prng,double draw_ratio,double elo0,double elo1){
+int match(prng_t *prng,double draw_ratio,double elo0,double elo1){
   double wdl_[3];
   double elo=elo1-elo0;
   wdl(draw_ratio,elo,wdl_);
