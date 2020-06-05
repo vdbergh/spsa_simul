@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #include <gsl/gsl_cdf.h>
 #include <time.h>
-#include <inttypes.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <assert.h>
 
 #include "gx2.h"
+#include "prng.h"
 
 #define C 347.43558552260146
 
@@ -20,22 +20,14 @@
 
 int nproc(void);
 
-/*
-  https://nuclear.llnl.gov/CNP/rng/rngman/node4.html
-*/
-double myrand(uint64_t *prng);
-
-/* do 2^48 steps */
-void jump(uint64_t *prng);
-
 #define WIN 2
 #define DRAW 1
 #define LOSS 0
 
 double L(double x);
-int pick(uint64_t *prng, double w,double d,double l);
+int pick(prng_t *prng, double w,double d,double l);
 void wdl(double draw_ratio,double elo,double *wdl_out);
-int match(uint64_t *prng,double draw_ratio,double elo0,double elo1);
+int match(prng_t *prng,double draw_ratio,double elo0,double elo1);
 
 #define MAX_PARAMS 20
 typedef double params_t[MAX_PARAMS];
@@ -112,7 +104,7 @@ typedef struct {
   double   percentiles[MAX_PERCENTILES];
   /* in/out data */
   /* read and written with mutex */
-           uint64_t prng;
+           prng_t prng;
   /* flag, read and written without mutex */
   /* volatile for safety */
   volatile int      stop;
@@ -127,7 +119,7 @@ typedef struct {
 typedef struct {
   int num_threads;
   int truncate;
-  uint64_t seed;
+  prng_t seed;
   double start_elo;
   int quiet;
 } options_t;

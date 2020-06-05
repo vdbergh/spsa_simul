@@ -55,7 +55,7 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
   params_t minima;
   params_t optima;
   params_t maxima;
-  o->seed=(uint64_t) time(0);
+  prng_init(&(o->seed));
   o->truncate=-1;
   o->start_elo=2;
   o->num_threads=nproc();

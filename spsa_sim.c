@@ -3,13 +3,13 @@
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_t threads[MAX_THREADS];
 
-void spsa_sim_step(uint64_t *prng, spsa_t *s,lf_t *lf,params_t *p){
+void spsa_sim_step(prng_t *prng, spsa_t *s,lf_t *lf,params_t *p){
   params_t flips,p_minus,p_plus;
   double pp;
   double elo0,elo1;
   double r;
   for(int j=0;j<s->num_params;j++){
-    r=myrand(prng);
+    r=prng_get(prng);
     if(r>=0.5){
       flips[j]=1;
     }else{
@@ -32,7 +32,7 @@ void spsa_sim_step(uint64_t *prng, spsa_t *s,lf_t *lf,params_t *p){
   }
 }
 
-void spsa_sim(uint64_t *prng, spsa_t *s,lf_t *lf,params_t *p,int quiet){
+void spsa_sim(prng_t *prng, spsa_t *s,lf_t *lf,params_t *p,int quiet){
   for(int i=0;i<s->num_games;i++){
     spsa_sim_step(prng,s,lf,p);
     if(i%100==0 && !quiet){
@@ -48,10 +48,9 @@ void spsa_sim(uint64_t *prng, spsa_t *s,lf_t *lf,params_t *p,int quiet){
 void* spsa_sims(void *args){
   sim_t *sim;
   sim=(sim_t *)(args);
-  uint64_t prng;
+  prng_t prng;
   pthread_mutex_lock(&mutex);
-  jump(&(sim->prng));
-  prng=sim->prng;
+  prng_split(&(sim->prng),&prng);
   pthread_mutex_unlock(&mutex);
   while(!sim->stop){
     double elo;
