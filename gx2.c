@@ -77,15 +77,16 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
     return 0;
   }
 
+  stats->iterations=0; /* not used */
+  stats->chi2_calls=0;
+  stats->truncation_error=0;
+  stats->funcalls=0; /* not used */
+
   if(x<=0){
     return 0;
   }
 
   stats->error_num=GX2CDF_NOT_CONVERGED;
-  stats->iterations=0; /* not used */
-  stats->chi2_calls=0; 
-  stats->truncation_error=0;
-  stats->funcalls=0; /* not used */
 
   double coeffs_min=-1;
   for(int i=0;i<nt;i++){
@@ -199,18 +200,26 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_sta
   int chi2_calls;
 
   stats->error_num=0;
+
   gx2_validate(nt,coeffs,df,lambda,stats);
   if(stats->error_num!=0){
     return 0;
   }
   
-  if(p<=0 || p>=1){
+  if(p<0 || p>1){
     stats->error_num=GX2PPF_NOT_A_PROBABILITY;
     return 0;
   }
-  
+
+  stats->chi2_calls=0;
+  stats->iterations=0;
+  stats->funcalls=0;
   stats->truncation_error=0;  /* not used */
-  
+
+  if(p==0){
+    return 0;
+  }
+
   args.nt=nt;
   args.coeffs=coeffs;
   args.df=df;
@@ -220,6 +229,7 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_sta
   args.chi2_calls=&chi2_calls;
   chi2_calls=0;
   args.p=p;
+
   stats_t brentq_stats={0,0,0};
   double rb=10;
   double x0;
