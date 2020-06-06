@@ -30,7 +30,7 @@ void gx2_validate(int nt, double *coeffs, int *df, double *lambda, gx2_stats_t *
   }
 }
 
-double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double tol, gx2_stats_t *stats){
+double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_stats_t *stats){
   /*
     Returns the CDF of a generalized chi-squared (a weighted sum of
     non-central chi-squares with positive weights), using Ruben's
@@ -46,10 +46,9 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
     double coeffs[]={1,5,2};
     int    df[]    ={1,2,3};
     double lambda[] ={2,3,7};
-    double tol      =1e-17;
     cx2cdf stats_t stats;
 
-    double p=gx2cdf(nt,x,coeffs,df,lambda,tol,&stats);
+    double p=gx2cdf(nt,x,coeffs,df,lambda,&stats);
 
     Inputs:
     nt        number of terms in the weighted sum
@@ -58,7 +57,6 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
     df        array of degrees of freedom of the non-central chi-squares
     lambda    array of non-centrality parameters (sum of squares of
               means) of the non-central chi-squares
-    tol       requested tolerance
     Outputs:
     p         computed CDF
     stats     statistcs (convergence, chi2_calls, truncation error)
@@ -76,6 +74,10 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
   stats->error_num=0;
   gx2_validate(nt,coeffs,df,lambda,stats);
   if(stats->error_num!=0){
+    return 0;
+  }
+
+  if(x<=0){
     return 0;
   }
 
@@ -107,7 +109,7 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
   }
   prod=sqrt(prod);
   
-  if(prod<FLT_MIN){
+  if(prod<DBL_MIN){
      stats->error_num=GX2CDF_UNDERFLOW;
      return 0;
   }
@@ -123,7 +125,7 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, double 
     double chi2=gsl_cdf_chisq_P(x/beta, M+2*(k+1));
     stats->chi2_calls++;
     stats->truncation_error=(1-sum_a)*chi2;
-    if(fabs(stats->truncation_error)<tol){
+    if(fabs(stats->truncation_error)<p*DBL_EPSILON){
       stats->error_num=GX2_CONVERGED;
       return p;
     }
@@ -155,10 +157,9 @@ typedef struct {
 
 static double f(double x, void *args){
   gx2_stats_t stats;
-  double tol=1e-17;
   p_t *ps;
   ps=(p_t *)(args);
-  double ret=gx2cdf(ps->nt, x, ps->coeffs, ps->df, ps->lambda, tol, &stats)-ps->p;
+  double ret=gx2cdf(ps->nt, x, ps->coeffs, ps->df, ps->lambda, &stats)-ps->p;
   *(ps->chi2_calls)+=stats.chi2_calls;
   if(*(ps->error_num)==GX2_CONVERGED){
     *(ps->error_num)=stats.error_num;
