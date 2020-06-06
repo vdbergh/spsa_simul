@@ -23,6 +23,6 @@ typedef struct {
 void gx2_stats_disp(gx2_stats_t *stats);
 
 double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_stats_t *stats);
-double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double tol, gx2_stats_t *stats);
+double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_stats_t *stats);
 
 #endif /* GX2_H */

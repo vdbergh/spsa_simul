@@ -167,7 +167,7 @@ static double f(double x, void *args){
   return ret;
 }
 
-double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double tol, gx2_stats_t *stats){
+double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_stats_t *stats){
   /*
     Returns the PPF of a generalized chi-squared (a weighted sum of
     non-central chi-squares with positive weights) by numerically inverting the CDF.
@@ -178,10 +178,9 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
     double coeffs[]={1,5,2};
     int    df[]    ={1,2,3};
     double lambda[] ={2,3,7};
-    double tol      =1e-15;
     cx2cdf stats_t stats;
 
-    double x=gx2ppf(nt,p,coeffs,df,lambda,tol,&stats);
+    double x=gx2ppf(nt,p,coeffs,df,lambda,&stats);
 
     Inputs:
     nt        number of terms in the weighted sum
@@ -190,7 +189,6 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
     df        array of degrees of freedom of the non-central chi-squares
     lambda    array of non-centrality parameters (sum of squares of
               means) of the non-central chi-squares
-    tol       requested tolerance
     Outputs:
     x         computed PPF
     stats     statistcs (convergence, chi2_calls, funcalls, iterations)
@@ -227,7 +225,7 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, double 
   double x0;
   for(double rb_=rb;rb_<1500;rb_*=2){
     brentq_stats.error_num=0;
-    x0=brentq(f,0,rb_,tol,tol,K,&brentq_stats,&args);
+    x0=brentq(f,0,rb_,0,2*DBL_EPSILON,K,&brentq_stats,&args);
     if(brentq_stats.error_num!=SIGNERR){
       break;
     }

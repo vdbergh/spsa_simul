@@ -19,14 +19,13 @@ double sos_ppf(sos_t *sos, double p){
   params_t coeffs;
   int df[MAX_PARAMS]; /* params_t is double[] */
   params_t lambda;
-  double tol=1e-12;
   gx2_stats_t stats;
   for(int i=0;i<sos->num_params;i++){
     coeffs[i]=sos->coeffs[i]*sos->var[i];
     lambda[i]=pow(sos->mu[i],2)/sos->var[i];
     df[i]=1;
   }
-  double ret=gx2ppf(sos->num_params, p, coeffs, df, lambda, tol, &stats);
+  double ret=gx2ppf(sos->num_params, p, coeffs, df, lambda, &stats);
   assert(stats.error_num==GX2_CONVERGED);
   return ret;
 }
