@@ -37,6 +37,15 @@ void gx2_validate(int nt, double *coeffs, int *df, double *lambda, gx2_stats_t *
   }
 }
 
+static void gx2stats(int nt, double *coeffs, int *df, double *lambda, double *mu, double *sigma2){
+  *mu=0;
+  *sigma2=0;
+  for(int i=0;i<nt;i++){
+    *mu+=coeffs[i]*(df[i]+lambda[i]);
+    *sigma2+=coeffs[i]*coeffs[i]*(2*df[i]+4*lambda[i]);
+  }
+}
+
 double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_stats_t *stats){
   /*
     Returns the CDF of a generalized chi-squared (a weighted sum of
@@ -246,14 +255,19 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_sta
   args.p=p;
 
   stats_t brentq_stats={0,0,0};
-  double rb=10;
+  double mu;
+  double sigma2;
+  double sigma;
+  gx2stats(nt,coeffs,df,lambda,&mu,&sigma2);
+  sigma=sqrt(sigma2);
   double x0;
-  for(double rb_=rb;rb_<1500;rb_*=2){
-    brentq_stats.error_num=0;
+  double rb_=mu;
+  while(1){
     x0=brentq(f,0,rb_,0,2*DBL_EPSILON,K,&brentq_stats,&args);
-    if(brentq_stats.error_num!=SIGNERR){
+    if((*(args.error_num)!= GX2_CONVERGED) || (brentq_stats.error_num!=SIGNERR)){
       break;
     }
+    rb_+=sigma;
   }
   if(*(args.error_num)!= GX2_CONVERGED){
     stats->error_num=*(args.error_num);
