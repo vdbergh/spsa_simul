@@ -127,13 +127,6 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
   double sum_a=a[0];
   double g[K-1];
   for(int k=0;k<=K-2;k++){
-    double chi2=gsl_cdf_chisq_P(x/beta, M+2*(k+1));
-    stats->chi2_calls++;
-    stats->truncation_error=(1-sum_a)*chi2;
-    if(fabs(stats->truncation_error)<p*DBL_EPSILON){
-      stats->error_num=GX2_CONVERGED;
-      return p;
-    }
     g[k]=0;
     for(int i=0;i<nt;i++){
       g[k]+=df[i]*pow((1-beta/coeffs[i]),k+1);
@@ -145,9 +138,16 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
     }
     a[k+1]/=2*(k+1);
     sum_a+=a[k+1];
+    double chi2=gsl_cdf_chisq_P(x/beta, M+2*(k+1));
+    stats->chi2_calls++;
+    stats->truncation_error=(1-sum_a)*chi2;
+    if(p==(p+a[k+1]*chi2)){
+      stats->error_num=GX2_CONVERGED;
+      break;
+    }
     p+=a[k+1]*chi2;
   }
-  return 0;
+  return p;
 }
 
 typedef struct {

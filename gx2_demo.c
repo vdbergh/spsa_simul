@@ -11,7 +11,7 @@ int main(){
   double lambda[]={2,3,7};
   gx2_stats_t stats;
   double p=gx2cdf(nt,x,coeffs,df,lambda,&stats);
-  printf("p=%16.16f dev=%g exit=%d chi2_calls=%d err=%g\n",p,p-val,stats.error_num,stats.chi2_calls,stats.truncation_error);
+  printf("p=%16.16g dev=%g exit=%d chi2_calls=%d err=%g\n",p,p-val,stats.error_num,stats.chi2_calls,stats.truncation_error);
   double x0=gx2ppf(nt,p,coeffs,df,lambda,&stats);
-  printf("x=%16.16f dev=%g exit=%d iterations=%d chi2_calls=%d funcalls=%d\n",x0,x0-x,stats.error_num,stats.iterations,stats.chi2_calls, stats.funcalls);
+  printf("x=%16.16g dev=%g exit=%d iterations=%d chi2_calls=%d funcalls=%d\n",x0,x0-x,stats.error_num,stats.iterations,stats.chi2_calls, stats.funcalls);
 }
