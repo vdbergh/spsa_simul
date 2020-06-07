@@ -71,16 +71,16 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
     Hand translated to C by Michel Van den Bergh.
   */
 
-  stats->error_num=0;
-  gx2_validate(nt,coeffs,df,lambda,stats);
-  if(stats->error_num!=0){
-    return 0;
-  }
-
   stats->iterations=0; /* not used */
   stats->chi2_calls=0;
   stats->truncation_error=0;
   stats->funcalls=0; /* not used */
+  stats->error_num=0;
+
+  gx2_validate(nt,coeffs,df,lambda,stats);
+  if(stats->error_num!=0){
+    return 0;
+  }
 
   if(x<=0){
     return 0;
@@ -199,6 +199,10 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_sta
   int error_num;
   int chi2_calls;
 
+  stats->chi2_calls=0;
+  stats->iterations=0;
+  stats->funcalls=0;
+  stats->truncation_error=0;  /* not used */
   stats->error_num=0;
 
   gx2_validate(nt,coeffs,df,lambda,stats);
@@ -210,11 +214,6 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_sta
     stats->error_num=GX2PPF_NOT_A_PROBABILITY;
     return 0;
   }
-
-  stats->chi2_calls=0;
-  stats->iterations=0;
-  stats->funcalls=0;
-  stats->truncation_error=0;  /* not used */
 
   if(p==0){
     return 0;
@@ -242,17 +241,12 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_sta
   }
   if(*(args.error_num)!= GX2_CONVERGED){
     stats->error_num=*(args.error_num);
-    return 0;
-  }else{
-    if(brentq_stats.error_num==SIGNERR){
+  }else if(brentq_stats.error_num==SIGNERR){
       stats->error_num=GX2PPF_SIGN_ERROR;
-      return 0;
-    }else if(brentq_stats.error_num==CONVERR){
-      stats->error_num=GX2PPF_NOT_CONVERGED;
-      return 0;
-    }else{
-      stats->error_num=GX2_CONVERGED;
-    }
+  }else if(brentq_stats.error_num==CONVERR){
+    stats->error_num=GX2PPF_NOT_CONVERGED;
+  }else{
+    stats->error_num=GX2_CONVERGED;
   }
   stats->chi2_calls+=*(args.chi2_calls);
   stats->iterations=brentq_stats.iterations;
