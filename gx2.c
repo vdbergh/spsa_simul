@@ -86,6 +86,10 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
     return 0;
   }
 
+  if(x==INFINITY){
+    return 1;
+  }
+
   stats->error_num=GX2CDF_NOT_CONVERGED;
 
   double coeffs_min=-1;
@@ -217,6 +221,8 @@ double gx2ppf(int nt, double p, double *coeffs, int *df, double *lambda, gx2_sta
 
   if(p==0){
     return 0;
+  }else if(p==1){
+    return INFINITY;
   }
 
   args.nt=nt;
