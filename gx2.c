@@ -159,9 +159,8 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
     stats->chi2_calls++;
     stats->truncation_error=(1-sum_a)*chi2;
     double p_old=p;
-    double c_old=c_p;
     kahan_sum(&p,&c_p,a[k+1]*chi2);
-    if(p==p_old && c_old==c_p){
+    if(p==p_old){
       stats->error_num=GX2_CONVERGED;
       break;
     }
