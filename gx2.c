@@ -9,6 +9,13 @@
 
 static const int K=1000;
 
+static void kahan_sum(double *sum, double *c, double term){
+  double y=term-*c;
+  double t=*sum+y;
+  *c=(t-*sum)-y;
+  *sum=t;
+}
+
 void gx2_validate(int nt, double *coeffs, int *df, double *lambda, gx2_stats_t *stats){
   if(nt<=0){
     stats->error_num=GX2_NEGATIVE_TERMS;
@@ -126,6 +133,7 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
 
   double sum_a=a[0];
   double g[K-1];
+  double  c_p=0;
   for(int k=0;k<=K-2;k++){
     g[k]=0;
     for(int i=0;i<nt;i++){
@@ -141,11 +149,13 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
     double chi2=gsl_cdf_chisq_P(x/beta, M+2*(k+1));
     stats->chi2_calls++;
     stats->truncation_error=(1-sum_a)*chi2;
-    if(p==(p+a[k+1]*chi2)){
+    double p_old=p;
+    double c_old=c_p;
+    kahan_sum(&p,&c_p,a[k+1]*chi2);
+    if(p==p_old && c_old==c_p){
       stats->error_num=GX2_CONVERGED;
       break;
     }
-    p+=a[k+1]*chi2;
   }
   return p;
 }
