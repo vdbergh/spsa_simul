@@ -150,8 +150,9 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
       g[k]+=beta*(k+1)*pow(1-beta/coeffs[i],k)*(lambda[i]/coeffs[i]);
     }
     a[k+1]=0;
+    double c_a=0;
     for(int u=0;u<=k;u++){
-      a[k+1]+=g[u]*a[k-u];
+      kahan_sum(&(a[k+1]),&c_a,g[u]*a[k-u]);
     }
     a[k+1]/=2*(k+1);
     sum_a+=a[k+1];

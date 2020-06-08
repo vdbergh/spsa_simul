@@ -1,8 +1,8 @@
 #include "spsa_sim.h"
 
 int main(){
-  int nt=8;
-  sos_t sos={nt,{1,1,1,1,1,1,1,1},{0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1}};
+  int nt=12;
+  sos_t sos={nt,{1,1,1,1,1,1,1,1,1,1,1,1},{0,0,0,0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1,1,1,1}};
   double p_input=0.95;
   double x0= gsl_cdf_chisq_Pinv(p_input, nt);
   double x=sos_ppf(&sos, p_input);
