@@ -115,7 +115,7 @@ double gx2cdf(int nt, double x, double *coeffs, int *df, double *lambda, gx2_sta
     }
   }
 
-  double beta=0.90625*coeffs_min; /* Can be arbitrary in loc. cit. */
+  double beta=coeffs_min;
 
   double M=0;
   double D=0;
