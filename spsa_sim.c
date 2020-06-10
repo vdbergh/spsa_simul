@@ -149,9 +149,12 @@ int main(int argc, char **argv){
   double success_est=spsa_success_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
   double fixed;
   double noise;
-  spsa_elo_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, &fixed, &noise);
+  double asymp;
+  spsa_elo_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, &fixed, &noise, &asymp);
   double p50=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, 0.5);
   double p95=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games, 0.95);
+  double p50_asymp=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), INFINITY, 0.5);
+  double p95_asymp=spsa_percentile(&(sim.s), &(sim.true_lf), &(sim.p), INFINITY, 0.95);
   sim.num_percentiles=2;
   sim.percentiles[0]=fabs(p50);
   sim.percentiles[1]=fabs(p95);
@@ -160,11 +163,11 @@ int main(int argc, char **argv){
   if(!o.quiet){
     printf("theoretical characteristics (using the true loss function)\n");
     printf("==========================================================\n");
-    printf("elo average               =%f Elo\n",fixed+noise);
+    printf("elo average               =%f Elo (asymptotic: %f, scale factor: %f)\n",fixed+noise,asymp,(fixed+noise)/asymp);
     printf("       fixed part         =%f Elo\n",fixed);
     printf("       noise part         =%f Elo\n",noise);
-    printf("50%% percentile            =%f Elo\n",p50);
-    printf("95%% percentile            =%f Elo\n",p95);
+    printf("50%% percentile            =%f Elo (asymptotic: %f, scale factor: %f)\n",p50,p50_asymp,p50/p50_asymp);
+    printf("95%% percentile            =%f Elo (asymptotic: %f, scale factor: %f)\n",p95,p95_asymp,p95/p95_asymp);
     printf("success rate              =%f\n",success_est);
     printf("\n");
   }

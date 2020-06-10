@@ -53,8 +53,14 @@ void sos_from_lf_spsa(sos_t *sos, lf_t *lf, spsa_t *s, params_t *p, double t){
     ej=lf->elos[j]/pow((lf->maxima[j]-lf->minima[j])/2,2);
     sos->coeffs[j]=ej;
     decayj=4*s->r*pow(s->c[j],2)*ej/C;
-    sos->mu[j]=exp(-decayj*t)*((*p)[j]-lf->optima[j]);
     front=(s->r)*(1-s->draw_ratio)*C/8;
-    sos->var[j]=front*(1-exp(-2*decayj*t))/ej;
+    if(t==INFINITY){
+      sos->mu[j]=0;
+      sos->var[j]=front/ej;
+    }else{
+      sos->mu[j]=exp(-decayj*t)*((*p)[j]-lf->optima[j]);
+      sos->var[j]=front*(1-exp(-2*decayj*t))/ej;
+    }
   }
 }
+

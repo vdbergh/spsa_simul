@@ -48,12 +48,16 @@ void spsa_compute(spsa_t *s, lf_t *est_lf){
   }
 }
 
-void spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t, double *fixed, double *noise){
-  sos_t sos;
+void spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t, double *fixed, double *noise, double *asymp){
+  sos_t sos, sos_asymp;
+  double fixed_, noise_;
   sos_from_lf_spsa(&sos, lf, s, p0, t);
-  sos_expected(&sos,fixed,noise);
-  *fixed=-*fixed;
-  *noise=-*noise;
+  sos_from_lf_spsa(&sos_asymp, lf, s, p0, INFINITY);
+  sos_expected(&sos,&fixed_,&noise_);
+  *fixed=-fixed_;
+  *noise=-noise_;
+  sos_expected(&sos_asymp,&fixed_,&noise_);
+  *asymp=-noise_;
 }
 
 double spsa_success_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t){

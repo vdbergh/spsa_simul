@@ -88,7 +88,7 @@ typedef struct {
 void spsa_init(spsa_t *s);
 void spsa_disp(spsa_t *s);
 void spsa_compute(spsa_t *s, lf_t *est_lf);
-void spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t, double *fixed, double *noise);
+void spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t, double *fixed, double *noise, double *asymp);
 double spsa_success_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
 double spsa_percentile(spsa_t *s, lf_t *lf, params_t *p0, double t, double p);
 
