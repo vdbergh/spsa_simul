@@ -149,7 +149,7 @@ int main(int argc, char **argv){
   params_t lambda,lambda2;
   spsa_lambda(&(sim.s),&(sim.true_lf),&lambda);
   for(int i=0;i<sim.s.num_params;i++){
-    lambda2[i]=lambda[i]/2;
+    lambda2[i]=lambda[i]*log(2)/2;
   }
   double success_est=spsa_success_estimate(&(sim.s), &(sim.true_lf), &(sim.p), sim.s.num_games);
   double fixed;
@@ -168,11 +168,8 @@ int main(int argc, char **argv){
   if(!o.quiet){
     printf("theoretical characteristics (using the true loss function)\n");
     printf("==========================================================\n");
-    params_disp("time constants            = ",sim.s.num_params,&lambda);
-    params_disp("time constants (Elo)      = ",sim.s.num_params,&lambda2);
-    printf("elo average               = %f Elo (asymptotic: %f, scale factor: %f)\n",fixed+noise,asymp,(fixed+noise)/asymp);
-    printf("       fixed part         = %f Elo\n",fixed);
-    printf("       noise part         = %f Elo\n",noise);
+    params_disp("Elo half life (games)     = ",sim.s.num_params,&lambda2);
+    printf("Elo average               = %f Elo (asymptotic: %f, scale factor: %f)\n",fixed+noise,asymp,(fixed+noise)/asymp);
     printf("50%% percentile            = %f Elo (asymptotic: %f, scale factor: %f)\n",p50,p50_asymp,p50/p50_asymp);
     printf("95%% percentile            = %f Elo (asymptotic: %f, scale factor: %f)\n",p95,p95_asymp,p95/p95_asymp);
     printf("success rate              = %f\n",success_est);
