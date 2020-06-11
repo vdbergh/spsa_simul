@@ -30,18 +30,24 @@ void spsa_init(spsa_t *s){
   }
 }
 
+void spsa_lambda(spsa_t *s, lf_t *est_lf, params_t *lambda){
+    for(int j=0;j<s->num_params;j++){
+      double H_diag=-2*est_lf->elos[j]/pow((est_lf->maxima[j]-est_lf->minima[j])/2,2);
+      (*lambda)[j]=-C/(2*s->r*pow(s->c[j],2)*H_diag);
+    }
+}
+
 void spsa_compute(spsa_t *s, lf_t *est_lf){
   double chi2=gsl_cdf_chisq_Pinv(s->confidence, est_lf->num_params);
-  double H_diag,lambda;
+  params_t lambda;
   int ng;
   s->r=s->precision/(C*chi2*(1-s->draw_ratio)/8);
   s->num_params=est_lf->num_params;
   s->num_games=0;
   for(int j=0;j<s->num_params;j++){
     s->c[j]=s->c_ratio*(est_lf->maxima[j]-est_lf->minima[j]);
-    H_diag=-2*est_lf->elos[j]/pow((est_lf->maxima[j]-est_lf->minima[j])/2,2);
-    lambda=-C/(2*s->r*pow(s->c[j],2)*H_diag);
-    ng=(int)(s->lambda_ratio*lambda+0.5);
+    spsa_lambda(s,est_lf,&lambda);
+    ng=(int)(s->lambda_ratio*lambda[j]+0.5);
     if(ng>s->num_games){
       s->num_games=ng;
     }
