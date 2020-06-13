@@ -3,12 +3,12 @@
 
 #include "prng.h"
 
-static const double   pow2_32f = 4294967296.0;
-static const uint64_t pow10_9  = UINT64_C(1000000000);
-static const uint64_t a        = UINT64_C(2862933555777941757);
-static const uint64_t b        = UINT64_C(3037000493);
-static const uint64_t a48      = UINT64_C(3311271626024157185);
-static const uint64_t b48      = UINT64_C(8774982398954700800);
+static const double   uint32_maxf = 4294967295.0;
+static const uint64_t pow10_9     = UINT64_C(1000000000);
+static const uint64_t a           = UINT64_C(2862933555777941757);
+static const uint64_t b           = UINT64_C(3037000493);
+static const uint64_t a48         = UINT64_C(3311271626024157185);
+static const uint64_t b48         = UINT64_C(8774982398954700800);
 
 void prng_init(prng_t *prng){
   struct timespec t;
@@ -28,7 +28,7 @@ double prng_get(prng_t *prng){
 */
   uint64_t current=*prng;
   *prng=a*(*prng)+b;
-  return (current>>32)/pow2_32f;
+  return (current>>32)/uint32_maxf;
 }
 
 void prng_split(prng_t *master, prng_t *out){
