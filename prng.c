@@ -3,12 +3,12 @@
 
 #include "prng.h"
 
-static const double   pow2_64 = 0x1.0000000000000p+64;
-static const uint64_t pow10_9 = UINT64_C(1000000000);
-static const uint64_t a       = UINT64_C(2862933555777941757);
-static const uint64_t b       = UINT64_C(3037000493);
-static const uint64_t a48     = UINT64_C(3311271626024157185);
-static const uint64_t b48     = UINT64_C(8774982398954700800);
+static const double   pow2_32f = 4294967296.0;
+static const uint64_t pow10_9  = UINT64_C(1000000000);
+static const uint64_t a        = UINT64_C(2862933555777941757);
+static const uint64_t b        = UINT64_C(3037000493);
+static const uint64_t a48      = UINT64_C(3311271626024157185);
+static const uint64_t b48      = UINT64_C(8774982398954700800);
 
 void prng_init(prng_t *prng){
   struct timespec t;
@@ -20,10 +20,15 @@ void prng_init(prng_t *prng){
 double prng_get(prng_t *prng){
 /*
   https://nuclear.llnl.gov/CNP/rng/rngman/node4.html
+
+  Per call we only use the 32 most significant bits. In this
+  way the prng passes the dieharder test suite.
+
+  To verify this run ./prng_dieharder.sh. 
 */
   uint64_t current=*prng;
   *prng=a*(*prng)+b;
-  return current/pow2_64;
+  return (current>>32)/pow2_32f;
 }
 
 void prng_split(prng_t *master, prng_t *out){
