@@ -31,7 +31,7 @@ general options
 ===============
 num_threads       =4
 truncate          =-1
-seed              =   1590606156
+seed              =   1592246463274356340
 start_elo         =2.000000
 quiet             =0
 
@@ -66,6 +66,7 @@ draw_ratio        =0.610000
 precision         =0.500000
 c_ratio           =0.166667
 lambda_ratio      =3.000000
+bounds            =0
 ~~~~~~~computed~~~~~~~ 
 r                 =0.003111
 c                 =33.333333  33.333333  33.333333  33.333333  
@@ -78,30 +79,27 @@ true loss function  =-2.000000
 
 theoretical characteristics (using the true loss function)
 ==========================================================
-elo average               =-0.215234 Elo
-       fixed part         =-0.004958 Elo
-       noise part         =-0.210276 Elo
-50% percentile            =-0.180640 Elo
-95% percentile            =-0.510440 Elo
-success rate              =0.945835
+Elo half life (games)     = 43537.498565  43537.498565  43537.498565  43537.498565  
+Elo average               = -0.215234 Elo (asymptotic: -0.210799, scale factor: 1.021039)
+50% percentile            = -0.180640 Elo (asymptotic: -0.176897, scale factor: 1.021159)
+95% percentile            = -0.510440 Elo (asymptotic: -0.500000, scale factor: 1.020879)
+success rate              = 0.945835
 
 sims
 ====
+sims=91 success=0.9451[0.8734,1.0167] elo_avg=-0.234242 p50=0.505495 p95=0.945055
+sims=187 success=0.9519[0.9049,0.9988] elo_avg=-0.214012 p50=0.556150 p95=0.957219
+sims=286 success=0.9615[0.9274,0.9957] elo_avg=-0.203717 p50=0.559441 p95=0.965035
 
-<output snipped>
-
-sims=12852 success=0.9456[0.9396,0.9516] elo_avg=-0.214578 p50=0.498444 p95=0.950358
+...
+sims=8786 success=0.9456[0.9383,0.9529] elo_avg=-0.214955 p50=0.500228 p95=0.949237
+sims=8885 success=0.9456[0.9384,0.9529] elo_avg=-0.214848 p50=0.500619 p95=0.949240
+sims=8971 success=0.9458[0.9387,0.9530] elo_avg=-0.214844 p50=0.499944 p95=0.949392
+sims=9068 success=0.9459[0.9387,0.9530] elo_avg=-0.214762 p50=0.500221 p95=0.949382
+sims=9163 success=0.9461[0.9390,0.9532] elo_avg=-0.214542 p50=0.500491 p95=0.949689
+...
 
 ```
 
 
-## The SPSA algorithm
-
-## Choosing parameters and theoretical evaluation
-
-### General principles
-
-r <-> precision
-
-rc^2 <-> speed at which the optimum is approached
 
