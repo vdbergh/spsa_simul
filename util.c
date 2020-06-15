@@ -17,7 +17,7 @@ void params_from_string(const char *str_in,  params_t *p){
   for(int i=0;i<MAX_PARAMS;i++){
     (*p)[i]=pp;
     if(token!=NULL){
-      token=strtok(NULL,":");
+      token=strtok(NULL,":,");
       if(token!=NULL){
 	pp=atof(token);
       }
