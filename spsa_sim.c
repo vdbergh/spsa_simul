@@ -183,6 +183,9 @@ int main(int argc, char **argv){
     params_disp("c                 =",sim.s.num_params,&(sim.s.c));
     printf("\n");
   }
+  if(o.truncate==0){
+    return 0;
+  }
   printf("sims\n");
   printf("====\n");
   for(int i=0;i<o.num_threads;i++){
@@ -192,4 +195,5 @@ int main(int argc, char **argv){
   for(int i=0;i<o.num_threads;i++){
     pthread_join(threads[i], NULL);
   }
+  return 0;
 }
