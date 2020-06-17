@@ -8,21 +8,25 @@ This program does multiple things
 invented by Joona Kiiski. This is a version of the SPSA algorithm
 suitable for tuning parameters of chess engines. The simulation
 depends on the Elo model together with a quadratic function `parameters-->elo`
-which we will henceforth call the "(true) loss function".
+which we will henceforth call the "true loss function".
 
-2. It computes good (constant) SPSA parameters for a user requested final
-"precision" (i.e. Elo below the optimum). This depends on the user
-guessing the shape of a reasonable quadratic loss function. In other words the
-user serves as an _oracle_. The computed parameters are
-conservative however. They will also work for other reasonable loss
-functions.
+2. It computes good (constant) SPSA parameters for a user requested
+final "precision" (i.e. Elo below the optimum). This depends on the
+user guessing the shape of a reasonable quadratic loss function,
+called henceforth the "guessed loss function". In other words the user
+serves as an _oracle_. The computed parameters are conservative
+however. They will also work for other reasonable loss functions.
 
-3. It evaluate theoretically the performance of the algorithm
-with the given parameters and the true loss function. 
-The theoretical characteristics can thus be compared to the simulated
-ones (hint: there is perfect agreement).
+3. It evaluate theoretically the performance of the algorithm with the
+given parameters and the true loss function.  The theoretical
+characteristics can thus be compared to the simulated ones (hint:
+there is perfect agreement).
 
-Example output
+For the theoretical background see
+
+https://github.com/vdbergh/spsa_simul/tree/master/doc/theoretical_basis.pdf
+
+## Example output
 
 ```
 $ ./spsa_sim --num_params 4
@@ -101,5 +105,159 @@ sims=9163 success=0.9461[0.9390,0.9532] elo_avg=-0.214542 p50=0.500491 p95=0.949
 
 ```
 
+## SPSA
 
+For the version of SPSA we use see
+
+https://github.com/zamar/spsa
+
+Note that in contrast to loc. cit. we keep the hyperparameters `ck`
+and `Rk:=ak/ck^2` constant and we denote them by `c` and `r`
+respectively. When optimizing more than one parameter at a time, the
+value of `c` is allowed to depend on the parameter but `r` is not.
+
+The rationale for decreasing `ck` and `Rk` over time in the standard
+SPSA algorithm is to achieve "convergence". However it can be easily
+shown that in our setting, due to lack of resources, no reasonable
+form of convergence is ever achievable. The best one can do is to plan
+for ending up within a specified distance from the optimum (Elo wise)
+with a specified probability. This is what what the current program
+achieves, under some assumptions on the true loss function. The
+specified distance is called `precision` (default `0.5 Elo`) and the
+probability is called `confidence` (default `95%`).
+
+## Parameters
+
+```
+$ ./spsa_sim -h
+spsa_sim [-h] [--num_params NUM_PARAMS] [--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] [--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] [--lambda_ratio LAMBDA_RATIO] [--est_elos EST_ELOS1,...] [--true_elos TRUE_ELOS1,...] [--minima MINIMA1,..] [--optima OPTIMA1,..] [--maxima MAXIMA1,...] [--start_elo START_ELO] [--quiet] [--threads THREADS]
+```
+
+### Lists
+
+Some arguments have to be specified for every parameter. This is
+done by supplying a comma (or colon) separated list, with no spaces.
+
+For example:
+
+```
+--true_elos 1,2,3
+```
+
+By convention the last entry in such a list is repeated if the list is
+shorter than the number of parameters.
+
+### Specification of the loss functions
+
+Both the true loss function and the guessed loss function are assumed
+to be defined on a hypercube with edges `[minimum_k,maximum_k]` where
+`_k` refers to the `k`'th parameter. Moreover they are also assumed
+to achieve their optimum in the same point. Note: this is a dubious
+assumption which needs to be changed.
+
+*Arguments:*
+
+```
+--minima <list>
+--maxima <list>
+--optima <list>
+```
+
+The actual loss functions are fixed by specifying Elo lists
+
+```
+--est_elos <list>
+--true_elos <list?
+```
+
+If `elo_k` is an entry in such a list then this means an Elo loss of `elo_k`
+if the parameter is at a distance `(maximum_k-minimum_k)/2` from `optimum_k`. 
+
+### Other parameters
+
+
+```
+--num_params NUM_PARAMS
+```
+The number of parameters being tuned (default: `1`).
+
+```
+--precision PRECISION
+```
+Requested Elo distance from the optimum (default: `0.5`).
+
+```
+--confidence CONFIDENCE
+```
+The probability of achieving the requested precision (default `0.95`).
+
+```
+--draw_ratio DRAW_RATIO
+```
+The draw_ratio (default `0.61`).
+
+```
+--seed SEED
+```
+The prng seed. This is a 64 bit number, expressed in decimal notation. If this
+argument is not supplied then the prng is seeded using the time.
+
+```
+--truncate TRUNCATE
+```
+Stop simulating after this many sims. By default the simulator runs forever.
+
+```
+--bounds
+```
+When this flag is present the loss function will not be evaluated
+outside the specified hypercube.  In that case the results of the
+simulations will deviate slightly from the theoretical predictions,
+which assume that the loss function can be evaluated everywhere.
+
+
+```
+--c_ratio C_RATIO
+```
+Set `c` (for a given parameter) equal to `(maximum-minum)*C_RATIO` (default: 1/6).
+
+```
+--lambda_ratio LAMBDA_RATIO
+```
+Rougly speaking `lambda` is the number of games it takes to divide the
+Elo distance to the optimum by `e^2=7.389`. The total number of games
+will be lambda*LAMBDA_RATIO (default: 3).
+
+```
+--start_elo START_ELO
+```
+Select a starting point for the simulation where the guessed loss
+function takes the value START_ELO (default: 2).
+
+```
+--threads THREADS
+```
+Simultaneous simulations. The default is given by the number of cores
+of on the system, as returned by the `nproc` command.
+
+```
+--quiet
+```
+When this flag is present very little information is printed.
+
+## Output
+
+The most essential output is given by the values of `r`, `c` and the
+number of games.
+
+_Example_
+
+```
+$ ./spsa_sim --num_params 4 --quiet --truncate 0
+num_params        =4
+start_elo         =2.00
+num_games         =376868
+r                 =0.003111
+c                 =33.333333  33.333333  33.333333  33.333333  
+```
 

@@ -23,7 +23,7 @@ const char * options_messages[] = {
   "Unknown option"
 };
 
-const char *options_usage_s="sprsa_simul [-h] [--num_params NUM_PARAMS] "
+const char *options_usage_s="spsa_simul [-h] [--num_params NUM_PARAMS] "
   "[--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] "
   "[--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] "
   "[--lambda_ratio LAMBDA_RATIO] [--est_elos EST_ELOS1,...] "
