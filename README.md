@@ -162,6 +162,7 @@ assumption which needs to be changed.
 --maxima <list>
 --optima <list>
 ```
+The defaults are respectively `0,200,100`.
 
 The actual loss functions are fixed by specifying Elo lists
 
@@ -169,6 +170,7 @@ The actual loss functions are fixed by specifying Elo lists
 --est_elos <list>
 --true_elos <list?
 ```
+The defaults is  `2` for both loss functions.
 
 If `elo_k` is an entry in such a list then this means an Elo loss of `elo_k`
 if the parameter is at a distance `(maximum_k-minimum_k)/2` from `optimum_k`. 
