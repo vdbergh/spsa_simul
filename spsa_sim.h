@@ -59,11 +59,13 @@ double lf_eval(lf_t *lf, params_t *p);
 #define OPTIONS_PARSE_EST_ELOS          12
 #define OPTIONS_PARSE_TRUE_ELOS         13
 #define OPTIONS_PARSE_MINIMA            14
-#define OPTIONS_PARSE_OPTIMA            15
+#define OPTIONS_PARSE_TRUE_OPTIMA       15
 #define OPTIONS_PARSE_MAXIMA            16
-#define OPTIONS_PARSE_START_ELO         17
-#define OPTIONS_PARSE_THREADS           18
-#define OPTIONS_PARSE_UNKNOWN           19
+#define OPTIONS_PARSE_EST_START_ELO     17
+#define OPTIONS_PARSE_TRUE_START_ELO    18
+#define OPTIONS_PARSE_THREADS           19
+#define OPTIONS_PARSE_HEURISTIC         20
+#define OPTIONS_PARSE_UNKNOWN           21
 
 extern const char * options_messages[];
 
@@ -78,6 +80,7 @@ typedef struct {
   double precision;
   double c_ratio;
   double lambda_ratio;
+  double start_elo;
   int bounds;
   /* computed */
   double r;
@@ -87,7 +90,7 @@ typedef struct {
 
 void spsa_init(spsa_t *s);
 void spsa_disp(spsa_t *s);
-void spsa_compute(spsa_t *s, lf_t *est_lf);
+void spsa_compute(spsa_t *s, lf_t *est_lf, int heuristic);
 void spsa_lambda(spsa_t *s, lf_t *est_lf, params_t *lambda);
 void spsa_elo_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t, double *fixed, double *noise, double *asymp);
 double spsa_success_estimate(spsa_t *s, lf_t *lf, params_t *p0, double t);
@@ -117,12 +120,16 @@ typedef struct {
   volatile double   elo_total;
 } sim_t;
 
+#define OPTIONS_HEURISTIC_LAMBDA_RATIO 1
+#define OPTIONS_HEURISTIC_OPTIMUM      2
+
 typedef struct {
   int num_threads;
   int truncate;
+  double true_start_elo;
   prng_t seed;
-  double start_elo;
   int quiet;
+  int heuristic;
 } options_t;
 
 int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf, options_t *o, const char ** option);
@@ -141,3 +148,5 @@ double sos_cdf(sos_t *sos, double x);
 double sos_ppf(sos_t *sos, double p);
 void sos_expected(sos_t *sos, double *fixed, double *noise);
 void sos_from_lf_spsa(sos_t *sos, lf_t *lf, spsa_t *s, params_t *p, double t);
+
+void optimum_r_t(spsa_t *s, lf_t *lf, double *r, double *t);

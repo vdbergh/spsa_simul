@@ -16,10 +16,12 @@ const char * options_messages[] = {
   "Illegal estimated elos",
   "Illegal true elos",
   "Illegal minima",
-  "Illegal optima",
+  "Illegal true optima",
   "Illegal maxima",
-  "Illegal start_elo",
+  "Illegal estimated start elo",
+  "Illegal true start elo",
   "Illegal number of threads",
+  "Illegal heuristic",
   "Unknown option"
 };
 
@@ -27,8 +29,9 @@ const char *options_usage_s="spsa_simul [-h] [--num_params NUM_PARAMS] "
   "[--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] "
   "[--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] "
   "[--lambda_ratio LAMBDA_RATIO] [--est_elos EST_ELOS1,...] "
-  "[--true_elos TRUE_ELOS1,...] [--minima MINIMA1,..] [--optima OPTIMA1,..] [--maxima MAXIMA1,...] "
-  "[--start_elo START_ELO] [--quiet] [--threads THREADS]";
+  "[--true_elos TRUE_ELOS1,...] [--minima MINIMA1,..] [--true_optima OPTIMA1,..] [--maxima MAXIMA1,...] "
+  "[--est_start_elo EST_START_ELO] [--true_start_elo TRUE_START_ELO] [--heuristic HEURISTIC] "
+  "[--quiet] [--threads THREADS]";
 
 void options_usage(){
   printf("%s\n",options_usage_s);
@@ -37,8 +40,9 @@ void options_usage(){
 void options_disp(options_t *o){
   printf("num_threads       =%d\n",o->num_threads);
   printf("truncate          =%d\n",o->truncate);
+  printf("true_start_elo    =%f\n",o->true_start_elo);
+  printf("heuristic         =%d\n",o->heuristic);
   printf("seed              =   %" PRIu64 "\n",o->seed);
-  printf("start_elo         =%f\n",o->start_elo);
   printf("quiet             =%d\n",o->quiet);
 }
 
@@ -48,18 +52,19 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
   params_t *true_elos_=NULL;
   params_t *est_elos_=NULL;
   params_t *minima_=NULL;
-  params_t *optima_=NULL;
+  params_t *true_optima_=NULL;
   params_t *maxima_=NULL;
   params_t true_elos;
   params_t est_elos;
   params_t minima;
-  params_t optima;
+  params_t true_optima;
   params_t maxima;
   prng_init(&(o->seed));
   o->truncate=-1;
-  o->start_elo=2;
+  o->true_start_elo=2;
   o->num_threads=nproc();
   o->quiet=0;
+  o->heuristic=OPTIONS_HEURISTIC_LAMBDA_RATIO;
   spsa_init(s);
   for(int i=1;i<=argc-1;i++){
     const char *option_=argv[i];
@@ -122,6 +127,16 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_PRECISION;
       }
+    }else if(strcmp(option_,"--heuristic")==0){
+      if(i<argc-1){
+	o->heuristic=atoi(argv[i+1]);
+	if(o->heuristic<=0 || o->heuristic>=3){
+	  return OPTIONS_PARSE_HEURISTIC;
+	}
+	i++;
+      }else{
+	return OPTIONS_PARSE_HEURISTIC;
+      }
     }else if(strcmp(option_,"--c_ratio")==0){
       if(i<argc-1){
 	s->c_ratio=atof(argv[i+1]);
@@ -166,13 +181,13 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_MINIMA;
       }
-    }else if(strcmp(option_,"--optima")==0){
+    }else if(strcmp(option_,"--true_optima")==0){
       if(i<argc-1){
-	params_from_string(argv[i+1],&optima);
-	optima_=&optima;
+	params_from_string(argv[i+1],&true_optima);
+	true_optima_=&true_optima;
 	i++;
       }else{
-	return OPTIONS_PARSE_OPTIMA;
+	return OPTIONS_PARSE_TRUE_OPTIMA;
       }
     }else if(strcmp(option_,"--maxima")==0){
       if(i<argc-1){
@@ -182,15 +197,25 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       }else{
 	return OPTIONS_PARSE_MAXIMA;
       }
-    }else if(strcmp(option_,"--start_elo")==0){
+    }else if(strcmp(option_,"--est_start_elo")==0){
       if(i<argc-1){
-	o->start_elo=atof(argv[i+1]);
-	if(o->start_elo<0){
-	  return OPTIONS_PARSE_START_ELO;
+	s->start_elo=atof(argv[i+1]);
+	if(s->start_elo<0){
+	  return OPTIONS_PARSE_EST_START_ELO;
 	}
 	i++;
       }else{
-	return OPTIONS_PARSE_START_ELO;
+	return OPTIONS_PARSE_EST_START_ELO;
+      }
+    }else if(strcmp(option_,"--true_start_elo")==0){
+      if(i<argc-1){
+	o->true_start_elo=atof(argv[i+1]);
+	if(o->true_start_elo<0){
+	  return OPTIONS_PARSE_TRUE_START_ELO;
+	}
+	i++;
+      }else{
+	return OPTIONS_PARSE_TRUE_START_ELO;
       }
     }else if(strcmp(option_,"--quiet")==0){
       o->quiet=1;
@@ -208,11 +233,11 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
       return OPTIONS_PARSE_UNKNOWN;
     }
   }
-  ret=lf_init(true_lf,num_params,true_elos_,optima_,minima_,maxima_);
+  ret=lf_init(true_lf,num_params,true_elos_,true_optima_,minima_,maxima_);
   if(ret!=0){
     return ret;
   }
-  ret=lf_init(est_lf,num_params,est_elos_,optima_,minima_,maxima_);
+  ret=lf_init(est_lf,num_params,est_elos_,NULL,minima_,maxima_);
   if(ret!=0){
     return ret;
   }

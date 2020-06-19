@@ -131,14 +131,14 @@ int main(int argc, char **argv){
   sim.pass_count=0;
   sim.elo_total=0;
   sim.stop=0;
-  spsa_compute(&(sim.s),&est_lf);
+  spsa_compute(&(sim.s),&est_lf, o.heuristic);
   if(!o.quiet){
     printf("spsa data\n");
     printf("=========\n");
     spsa_disp(&(sim.s));
     printf("\n");
   }
-  lf_start(&est_lf,o.start_elo,&(sim.p));
+  lf_start(&(sim.true_lf),o.true_start_elo,&(sim.p));
   if(!o.quiet){
     printf("starting point sims\n");
     printf("===================\n");
@@ -177,7 +177,7 @@ int main(int argc, char **argv){
   }
   if(o.quiet){
     printf("num_params        =%d\n",sim.s.num_params);
-    printf("start_elo         =%.2f\n",o.start_elo);
+    printf("est_start_elo     =%.2f\n",sim.s.start_elo);
     printf("num_games         =%d\n",sim.s.num_games);
     printf("r                 =%f\n",sim.s.r);
     params_disp("c                 =",sim.s.num_params,&(sim.s.c));
