@@ -17,7 +17,7 @@ called henceforth the "guessed loss function". In other words the user
 serves as an _oracle_. The computed parameters are conservative
 however. They will also work for other reasonable loss functions.
 
-3. It evaluate theoretically the performance of the algorithm with the
+3. It evaluates theoretically the performance of the algorithm with the
 given parameters and the true loss function.  The theoretical
 characteristics can thus be compared to the simulated ones (hint:
 there is perfect agreement).
@@ -113,7 +113,7 @@ respectively. When optimizing more than one parameter at a time, the
 value of `c` is allowed to depend on the parameter but `r` is not.
 
 The rationale for decreasing `ck` and `Rk` over time in the standard
-SPSA algorithm is to achieve "convergence". However it can be easily
+SPSA algorithm is to achieve convergence. However it can be easily
 shown that in our setting, due to lack of resources, no reasonable
 form of convergence is ever achievable. The best one can do is to plan
 for ending up within a specified distance from the optimum (Elo wise)
@@ -126,8 +126,17 @@ probability is called `confidence` (default `95%`).
 
 ```
 $ ./spsa_sim -h
-spsa_sim [-h] [--num_params NUM_PARAMS] [--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] [--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] [--lambda_ratio LAMBDA_RATIO] [--est_elos EST_ELOS1,...] [--true_elos TRUE_ELOS1,...] [--minima MINIMA1,..] [--optima OPTIMA1,..] [--maxima MAXIMA1,...] [--start_elo START_ELO] [--quiet] [--threads THREADS]
+spsa_simul [-h] [--num_params NUM_PARAMS] [--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] [--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] [--lambda_ratio LAMBDA_RATIO] [--est_elos EST_ELOS1,...] [--true_elos TRUE_ELOS1,...] [--minima MINIMA1,..] [--true_optima OPTIMA1,..] [--maxima MAXIMA1,...] [--est_start_elo EST_START_ELO] [--true_start_elo TRUE_START_ELO] [--heuristic HEURISTIC] [--quiet] [--threads THREADS]
+
 ```
+
+### Guessed quantities versus true quantities
+
+To compute values for `r,c` and the total number of games, the user has to supply
+guesses for some quantities. The names of such quantities are
+generally prefixed by "est". On the other hand to perform simulations
+one needs the true values of these quantities. For those the prefix is
+generally "true".
 
 ### Lists
 
@@ -147,20 +156,19 @@ shorter than the number of parameters.
 
 Both the true loss function and the guessed loss function are assumed
 to be defined on a hypercube with edges `[minimum_k,maximum_k]` where
-`_k` refers to the `k`'th parameter. Moreover they are also assumed
-to achieve their optimum in the same point. Note: this is a dubious
-assumption which needs to be changed.
+`_k` refers to the `k`'th parameter. 
 
 *Arguments:*
 
 ```
 --minima <list>
 --maxima <list>
---optima <list>
+--true_optima <list>
 ```
-The defaults are respectively `0,200,100`.
+The defaults are respectively `0,200,100`. There is no `--est_optima` since the
+estimated optima are not used in any calculation.
 
-The actual loss functions are fixed by specifying Elo lists
+The actual loss functions are specified by supplying Elo lists
 
 ```
 --est_elos <list>
@@ -182,7 +190,7 @@ The number of parameters being tuned (default: `1`).
 ```
 --precision PRECISION
 ```
-Requested Elo distance from the optimum (default: `0.5`).
+Requested final Elo distance from the optimum (default: `0.5`).
 
 ```
 --confidence CONFIDENCE
@@ -224,20 +232,33 @@ Set `c` (for a given parameter) equal to `(maximum-minum)*C_RATIO` (default: 1/6
 ```
 Rougly speaking `lambda` is the number of games it takes to divide the
 Elo distance to the optimum by `e^2=7.389`. The total number of games
-will be lambda*LAMBDA_RATIO (default: 3).
+will be `lambda*LAMBDA_RATIO`. This is only used in heuristic 1 (default: 3).
 
 ```
---start_elo START_ELO
+--true_start_elo TRUE_START_ELO
 ```
 Select a starting point for the simulation where the guessed loss
-function takes the value START_ELO (default: 2).
+function takes the value `TRUE_START_ELO` (default: 2).
+
+```
+--est_start_elo EST_START_ELO
+```
+Guess the Elo of a starting point. This is only used in heurstic 2
+(default: 2).
 
 ```
 --threads THREADS
 ```
 Simultaneous simulations. The default is given by the number of cores
-of on the system, as returned by the `nproc` command.
+in the system, as returned by the `nproc` command.
 
+```
+--heuristic HEURISTIC
+```
+Can be either 1 or 2 (default: 1). Two different heuristics for calculating
+good values for `r` and the total number of games. Heuristic 2 generally
+requires fewer games (with the default settings) but it makes stronger
+assumptions on the accuracy of the guessed loss function. 
 ```
 --quiet
 ```
@@ -253,7 +274,7 @@ _Example_
 ```
 $ ./spsa_sim --num_params 4 --quiet --truncate 0
 num_params        =4
-start_elo         =2.00
+est_start_elo     =2.00
 num_games         =376868
 r                 =0.003111
 c                 =33.333333  33.333333  33.333333  33.333333  
