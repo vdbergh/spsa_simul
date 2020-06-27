@@ -237,7 +237,7 @@ will be `lambda*LAMBDA_RATIO`. This is only used in heuristic 1 (default: 3).
 ```
 --true_start_elo TRUE_START_ELO
 ```
-Select a starting point for the simulation where the guessed loss
+Select a starting point for the simulation where the true loss
 function takes the value `TRUE_START_ELO` (default: 2).
 
 ```
