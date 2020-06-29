@@ -176,9 +176,11 @@ int main(int argc, char **argv){
     printf("\n");
   }
   if(o.quiet){
-    printf("num_games         =%d\n",sim.s.num_games);
-    printf("r                 =%f\n",sim.s.r);
-    params_disp("c                 =",sim.s.num_params,&(sim.s.c));
+    printf("num_params        = %d\n",sim.s.num_params);
+    printf("draw_ratio        = %f\n",sim.s.draw_ratio);
+    printf("num_games         = %d\n",sim.s.num_games);
+    printf("r                 = %f\n",sim.s.r);
+    params_disp("c                 = ",sim.s.num_params,&(sim.s.c));
     return 0;
   }
   if(o.truncate==0){
