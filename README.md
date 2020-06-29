@@ -262,7 +262,7 @@ assumptions on the accuracy of the guessed loss function.
 ```
 --quiet
 ```
-When this flag is present very little information is printed.
+When this flag is present only essential information is printed. No simulations are done.
 
 ## Output
 
@@ -272,9 +272,7 @@ number of games.
 _Example_
 
 ```
-$ ./spsa_sim --num_params 4 --quiet --truncate 0
-num_params        =4
-est_start_elo     =2.00
+$ ./spsa_sim --num_params 4 --quiet
 num_games         =376868
 r                 =0.003111
 c                 =33.333333  33.333333  33.333333  33.333333  

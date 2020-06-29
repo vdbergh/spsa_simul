@@ -176,12 +176,10 @@ int main(int argc, char **argv){
     printf("\n");
   }
   if(o.quiet){
-    printf("num_params        =%d\n",sim.s.num_params);
-    printf("est_start_elo     =%.2f\n",sim.s.start_elo);
     printf("num_games         =%d\n",sim.s.num_games);
     printf("r                 =%f\n",sim.s.r);
     params_disp("c                 =",sim.s.num_params,&(sim.s.c));
-    printf("\n");
+    return 0;
   }
   if(o.truncate==0){
     return 0;
