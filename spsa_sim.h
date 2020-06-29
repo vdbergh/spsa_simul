@@ -65,7 +65,8 @@ double lf_eval(lf_t *lf, params_t *p);
 #define OPTIONS_PARSE_TRUE_START_ELO    18
 #define OPTIONS_PARSE_THREADS           19
 #define OPTIONS_PARSE_HEURISTIC         20
-#define OPTIONS_PARSE_UNKNOWN           21
+#define OPTIONS_PARSE_NUM_PARAMS        21
+#define OPTIONS_PARSE_UNKNOWN           99
 
 extern const char * options_messages[];
 

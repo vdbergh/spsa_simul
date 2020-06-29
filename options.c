@@ -22,6 +22,7 @@ const char * options_messages[] = {
   "Illegal true start elo",
   "Illegal number of threads",
   "Illegal heuristic",
+  "Illegal number of parameters",
   "Unknown option"
 };
 
@@ -74,9 +75,12 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
     }else if(strcmp(option_,"--num_params")==0){
       if(i<argc-1){
 	num_params=atoi(argv[i+1]);
+	if(num_params<=0){
+	  return OPTIONS_PARSE_NUM_PARAMS;
+	}
 	i++;
       }else{
-	return OPTIONS_PARSE_HELP;
+	return OPTIONS_PARSE_NUM_PARAMS;
       }
     }else if(strcmp(option_,"--confidence")==0){
       if(i<argc-1){
