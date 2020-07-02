@@ -50,8 +50,8 @@ void spsa_compute(spsa_t *s, lf_t *est_lf, int heuristic){
   if(heuristic==OPTIONS_HEURISTIC_LAMBDA_RATIO){
     s->r=s->precision/(C*chi2*(1-s->draw_ratio)/8);
     s->num_games=0;
+    spsa_lambda(s,est_lf,&lambda);
     for(int j=0;j<s->num_params;j++){
-      spsa_lambda(s,est_lf,&lambda);
       ng=(int)(s->lambda_ratio*lambda[j]+0.5);
       if(ng>s->num_games){
 	s->num_games=ng;
