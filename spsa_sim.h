@@ -16,8 +16,6 @@
 #define MAX_THREADS 128
 #define MAX_PERCENTILES 20
 
-#define NPROC_COMMAND "/usr/bin/nproc"
-
 int nproc(void);
 
 #define WIN 2

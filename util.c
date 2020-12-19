@@ -26,12 +26,17 @@ void params_from_string(const char *str_in,  params_t *p){
   free(str_copy);
 }
 
+#define NPROC_COMMAND "nproc"
+
 int nproc(void){
   char *line=NULL;
   size_t len=0;
   ssize_t read;
   int nproc_;
   FILE *f=popen(NPROC_COMMAND,"r");
+  if(f==NULL){
+    return 0;
+  }
   read=getline(&line,&len,f);
   pclose(f);
   nproc_=read>0?atoi(line):1;
