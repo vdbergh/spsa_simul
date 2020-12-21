@@ -106,7 +106,11 @@ int main(int argc, char **argv){
     if(ret==OPTIONS_PARSE_HELP){
       options_usage();
       return 0;
-    }else{
+    }else if(ret==OPTIONS_PARSE_VERSION){
+      printf("%s\n",VERSION_STRING);
+      return 0;
+    }
+    else{
       printf("%s: %s\n",option,options_messages[ret]);
       options_usage();
       return 1;

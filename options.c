@@ -26,7 +26,7 @@ const char * options_messages[] = {
   "Unknown option"
 };
 
-const char *options_usage_s="spsa_simul [-h] [--num_params NUM_PARAMS] "
+const char *options_usage_s="spsa_simul [-h] [-v] [--num_params NUM_PARAMS] "
   "[--confidence CONFIDENCE] [--draw_ratio DRAW_RATIO] [--seed SEED] "
   "[--truncate TRUNCATE] [--bounds] [--precision PRECISION] [--c_ratio C_RATIO] "
   "[--lambda_ratio LAMBDA_RATIO] [--est_elos EST_ELOS1,...] "
@@ -72,6 +72,8 @@ int options_parse(int argc, char **argv, spsa_t *s, lf_t *est_lf, lf_t *true_lf,
     *option=option_;
     if(strcmp(option_,"-h")==0){
       return OPTIONS_PARSE_HELP;
+    }else if(strcmp(option_,"-v")==0){
+      return OPTIONS_PARSE_VERSION;
     }else if(strcmp(option_,"--num_params")==0){
       if(i<argc-1){
 	num_params=atoi(argv[i+1]);

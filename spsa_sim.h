@@ -11,6 +11,8 @@
 #include "gx2.h"
 #include "prng.h"
 
+#define VERSION_STRING "spsa_sim: compiled on " __DATE__ __TIME__
+
 #define C 347.43558552260146
 
 #define MAX_THREADS 128
@@ -64,7 +66,8 @@ double lf_eval(lf_t *lf, params_t *p);
 #define OPTIONS_PARSE_THREADS           19
 #define OPTIONS_PARSE_HEURISTIC         20
 #define OPTIONS_PARSE_NUM_PARAMS        21
-#define OPTIONS_PARSE_UNKNOWN           22
+#define OPTIONS_PARSE_VERSION           22
+#define OPTIONS_PARSE_UNKNOWN           23
 
 extern const char * options_messages[];
 
